@@ -1,0 +1,39 @@
+{
+  "name": "create-sra",
+  "version": "1.0.0",
+  "description": "It's a npx command tool to create a react project with the help of webpack and give choices to user to add important packages and popular css frameworks.",
+  "main": "index.js",
+  "bin": "index.js",
+  "keywords": [
+    "axios",
+    "redux",
+    "react-router",
+    "redux",
+    "react",
+    "npx",
+    "mui",
+    "redux-thunk",
+    "redux-saga",
+    "tailwindcss",
+    "bootstrap"
+  ],
+  "author": "amitkrout",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JenHsuan/create-nrs-template/issues"
+  },
+  "homepage": "https://github.com/JenHsuan/create-nrs-template#readme",
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.9.6",
+    "chalk": "^5.3.0",
+    "figlet": "^1.6.0",
+    "inquirer": "^7.3.3",
+    "ora": "^7.0.1",
+    "react-router-dom": "^6.16.0",
+    "redux": "^4.2.1",
+    "shelljs": "^0.8.5"
+  },
+  "devDependencies": {
+    "react-redux": "^8.1.2"
+  }
+}
