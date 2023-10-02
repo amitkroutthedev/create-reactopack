@@ -8,6 +8,7 @@ const figlet = require("figlet");
 const os = require("os");
 const { sign } = require("crypto");
 const fs = require("fs");
+const path = require('path');
 
 const init = async () => {
   const _chalk = await chalk;
@@ -270,6 +271,8 @@ root.render(
       shell.echo(`    ${_chalk.blue("npm run dev")}`);
       shell.echo(`${_chalk.red(_chalk.bold("Happy Coding!!!"))}`);
       }else{
+        const rootPath = path.join(__dirname, '/packages/sample-react');
+        console.log(rootPath)
         console.log(_chalk.green("Preparing files......"));
       shell.exec(`mkdir ${projectName}`);
       shell.cd(`${projectName}`);
@@ -278,7 +281,11 @@ root.render(
         "Creating & Installing base files in:",
         _chalk.bgCyan(_chalk.bold(projectName))
       );
-      shell.exec(`cp -r ../packages/sample-react/* ./`);
+      shell.exec(`cp -r ${rootPath}/* ./`);
+      /*fs.copy(rootPath, './', { dereference: true }, err => {
+        if (err) return console.error(err);
+        console.log('Contents copied successfully!');
+      });*/
 
       const installInitial = runCommand("npm install");
       if (!installInitial) process.exit(-1);

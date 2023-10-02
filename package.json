@@ -1,6 +1,6 @@
 {
   "name": "create-sra",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "It's a npx command tool to create a react project with the help of webpack and give choices to user to add important packages and popular css frameworks.",
   "main": "index.js",
   "bin": {
@@ -30,6 +30,7 @@
     "figlet": "^1.6.0",
     "inquirer": "^7.3.3",
     "ora": "^7.0.1",
+    "postcss-loader": "^7.3.3",
     "shelljs": "^0.8.5"
   }
 }
