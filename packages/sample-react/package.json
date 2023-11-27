@@ -2,10 +2,10 @@
   "name": "sample-react",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.jsx",
   "scripts": {
-    "dev": "webpack-dev-server",
-    "build": "webpack"
+    "start": "webpack-dev-server --open --mode development --hot",
+    "build": "webpack --mode production"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "css-loader": "^6.8.1",
+    "detect-port-alt": "^1.1.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "style-loader": "^3.3.3"
