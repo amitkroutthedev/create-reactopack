@@ -26,11 +26,11 @@
   },
   "homepage": "https://github.com/amitkroutthedev/super-react-app#readme",
   "dependencies": {
-    "chalk": "^5.3.0",
-    "figlet": "^1.6.0",
-    "inquirer": "^7.3.3",
-    "ora": "^7.0.1",
-    "postcss-loader": "^7.3.3",
-    "shelljs": "^0.8.5"
+    "chalk": "5.3.0",
+    "figlet": "^1.7.0",
+    "inquirer": "9.2.12",
+    "ora": "7.0.1",
+    "postcss-loader": "7.3.3",
+    "shelljs": "0.8.5"
   }
 }

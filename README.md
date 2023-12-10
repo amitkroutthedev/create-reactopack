@@ -6,7 +6,7 @@
 
 <p align="center">
   
-![MIT License](https://img.shields.io/badge/License-MIT-green.svg) ![version](https://img.shields.io/npm/v/create-sra.svg?logo=npm) ![downloads](https://img.shields.io/npm/dw/create-sra?logo=npm) ![npm bundle size](https://img.shields.io/bundlephobia/min/create-sra?logo=npm)
+![MIT License](https://img.shields.io/badge/License-MIT-green.svg) ![version](https://img.shields.io/npm/v/create-sra.svg?logo=npm) ![downloads](https://img.shields.io/npm/dt/create-sra?logo=npm) ![npm bundle size](https://img.shields.io/bundlephobia/min/create-sra?logo=npm)
 
 </p>
 
