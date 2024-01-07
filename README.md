@@ -14,6 +14,8 @@
 </div>
 
 It's a template based on react app from webpack. The template provides following additinal packages to make the website creation much easier and flexible.
+* Package Managers (NPM and YARN)
+* jsx/tsx
 * React-Router
 * Axios
 * Redux
@@ -60,6 +62,7 @@ It's a template based on react app from webpack. The template provides following
 - Inquirer
 - Ora
 - Shelljs
+
 ## Issues
 
 If you find any issues or bugs, please create a new issue in the repository
