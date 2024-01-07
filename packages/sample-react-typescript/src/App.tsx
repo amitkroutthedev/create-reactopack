@@ -1,5 +1,7 @@
-import React from "react";
-function App() {
-  return <div>{"react setup from scratch without cra testing ts"}</div>;
+export default function App() {
+  return (
+    <main>
+      <p>App</p>
+    </main>
+  );
 }
-export default App;

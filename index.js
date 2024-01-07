@@ -1,123 +1,148 @@
-#!/usr/bin/env node
+import shell from 'shelljs'
+import * as fs from 'fs';
+import * as path from 'path';
+import { dirname } from 'path';
+import * as os from 'os';
+import { execSync } from 'child_process';
 
-const shell = require("shelljs");
-const inquirer = require("inquirer");
-const execSync = require("child_process").execSync;
-const chalk = import("chalk").then((m) => m.default);
-const figlet = require("figlet");
-const os = require("os");
-const { sign } = require("crypto");
-const fs = require("fs");
-const path = require('path');
+import { input, select, confirm } from '@inquirer/prompts';
+import chalk from 'chalk';
+import figlet from 'figlet';
+import gradient from 'gradient-string';
+
 
 const init = async () => {
-  const _chalk = await chalk;
-  console.log(
-    _chalk.blueBright(
-      figlet.textSync("Super React App", {
-        font: "ANSI Shadow",
-        horizontalLayout: "default",
-        verticalLayout: "default",
-      })
-    )
-  );
+  console.log(gradient([
+    { color: '#d8e0de', pos: 0 },
+    { color: '#255B53', pos: 0.8 },
+    { color: '#000000', pos: 1 }
+  ])(figlet.textSync("CREATE RP APP", {
+    font: "Ogre",
+    horizontalLayout: "default",
+    verticalLayout: "default",
+  })))
+  console.log(chalk.bold(chalk.magenta(">>>>>>  Welcome to REACTOPACK")))
 };
-
-if (!shell.which("git")) {
-  shell.echo("Sorry, this script requires git");
-  shell.exit(1);
-}
-
-const questions = [
-  {
-    type: "input",
-    name: "projectName",
-    message: "Please enter your new project's name.",
-    default: "super-react-project",
-  },
-  {
-    type: "list",
-    name: "packageManger",
-    message: "Please choose the package manager:",
-    choices: ["npm", "yarn"],
-    default: "npm",
-  },
-  {
-    type: "confirm",
-    name: "addRouter",
-    message: "Do you want to add router to the project(react-router)?:",
-    default: true,
-  },
-  {
-    type: "confirm",
-    name: "addAxios",
-    message: `Do you want to add axios for API calls?:`,
-    default: true,
-  },
-  {
-    type: "confirm",
-    name: "addRedux",
-    message: "Do you want to add redux?:",
-    default: true,
-  },
-  {
-    type: "list",
-    name: "middlewareType",
-    message: "Please choose the Redux's middleware the project:",
-    // choices: ["redux-thunk", "redux-saga", "redux-promise-middleware"],
-    choices: ["redux-thunk", "redux-saga"],
-    default: "redux-thunk",
-    when: (answers) => answers.addRedux === true,
-  },
-  {
-    type: "list",
-    name: "cssFramework",
-    message: "Please choose the css framwork you want to use for the project:",
-    choices: ["TailwindCSS", "MUI", "Bootstrap", "None of the above"],
-    default: "TailwindCSS",
-  },
-];
 
 const runCommand = (command) => {
   try {
     execSync(`${command}`, { stdio: "inherit" });
   } catch (error) {
-    console.error(`Failed to execute ${command}`, e);
+    console.error(`Failed to execute ${command}`, error);
     return false;
   }
   return true;
 }
 
-const createProjectDirectory = async (projectName) => {
-  const _chalk = await chalk;
-  const rootPath = path.join(__dirname, '/packages/sample-react');
+const generateQuestionsForFolder = async () => {
+  const folderName = await input({
+    message: 'Enter your folder name: ',
+    validate: async (input) => {
+      if (input === "") return 'Folder name cannot be empty'
+      return true
+    }
+  });
+  const typeOFScript = await select({
+    message: 'Will you be using TypeScript or JavaScript?',
+    choices: [
+      {
+        name: 'Javascript',
+        value: 'js',
+      },
+      {
+        name: 'Typescript',
+        value: 'ts',
+      },
+    ],
+    default: 'js'
+  })
+  const packageManger = await select({
+    message: 'Select a package manager:',
+    choices: [
+      {
+        name: 'npm',
+        value: 'npm',
+        description: 'npm is the most popular package manager',
+      },
+      {
+        name: 'yarn',
+        value: 'yarn',
+        description: 'yarn is an awesome package manager',
+      },
+    ],
+  });
+  const addRouter = await confirm({ message: 'Do you want to add router to the project(react-router)?', });
+  const addAxios = await confirm({ message: 'Do you want to add axios for API calls?' });
+  const addRedux = await confirm({ message: 'Do you want to add redux?' })
+  const reduxMiddlewareType = addRedux === true && await select({
+    message: `Please choose the Redux's middleware the project:`,
+    choices: [
+      {
+        name: 'redux-thunk',
+        value: 'redux-thunk',
+
+      },
+      {
+        name: 'redux-saga',
+        value: 'redux-saga',
+
+      },
+    ],
+    default: "redux-thunk",
+  });
+  const cssFramework = await select({
+    message: 'Please choose the css framework',
+    choices: [
+      { name: 'TailwindCSS', value: 'TailwindCSS', description: 'Utility-first CSS framework for responsive web development.' },
+      { name: 'MUI', value: 'MUI', description: 'React framework with customizable Material Design components.' },
+      { name: 'Bootstrap', value: 'Bootstrap', description: 'Front-end framework for easy, responsive website design' },
+      { name: 'None of the above', value: 'None' },
+
+    ],
+  });
+  return { folderName, typeOFScript, packageManger, addRouter, addAxios, addRedux, reduxMiddlewareType, cssFramework }
+}
+
+const createProjectDirectory = async (projectName, typeOFScript) => {
+  let __dirname = path.resolve();
+  const conflicts = fs.readdirSync(__dirname).includes(projectName)
+  if (conflicts) { return false; }
+  let sample_package = typeOFScript === "js" ? '/packages/sample-react' : '/packages/sample-react-typescript'
+  const rootPath = path.join(__dirname, sample_package);
   console.log(rootPath)
-  console.log(_chalk.green("Preparing files......"));
+  console.log(chalk.green("Preparing files......"));
   shell.exec(`mkdir ${projectName}`);
   console.log(
     "Creating & Installing base files in:",
-    _chalk.bgCyan(_chalk.bold(projectName))
+    chalk.bgCyan(chalk.bold(projectName))
   );
   shell.cd(`${projectName}`);
   if (os.type() === "Windows_NT") {
     shell.exec(`xcopy /s /e ..\\packages\\sample-react\\* .`);
-  } else shell.exec(`cp -r ${rootPath}/* ./`);
+  } else {
+    shell.exec(`cp -r ${rootPath}/* ./`);
+  }
+  try {
+    const packageJsonContent = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+    packageJsonContent.name = projectName;
+    fs.writeFileSync("package.json", JSON.stringify(packageJsonContent, null, 2));
+  } catch (error) {
+    shell.echo(chalk.bold(chalk.redBright("Something went wrong")))
+  }
+  return true
 }
 
 const intializeGitAndPackage = async (packageManger) => {
-  const _chalk = await chalk;
-
   const installInitial = runCommand(packageManger === "npm" ? "npm install" : "yarn");
   if (!installInitial) process.exit(-1);
-  console.log(_chalk.blueBright("Initializing git"))
-  shell.exec(`git init`)
+  runCommand(`echo 'node_module' > .gitignore`)
+  console.log(chalk.blueBright("Initializing git"))
+  runCommand(`git init`)
   shell.echo("Configuring selected packages with project");
 }
-
 const installRouterPkg = async (typePackage) => {
-  const _chalk = await chalk;
   shell.echo(
-    `Installing ${_chalk.blue(
+    `Installing ${chalk.blue(
       "react-router"
     )} and creating router files inside src/ folder`
   );
@@ -138,14 +163,12 @@ const installRouterPkg = async (typePackage) => {
   }
 }
 const installAxiosPkg = async (typePackage) => {
-  const _chalk = await chalk;
-  shell.echo(`Installing ${_chalk.blue("axios")}`);
+  shell.echo(`Installing ${chalk.blue("axios")}`);
   const installAxios = runCommand(`${typePackage} axios`);
   if (!installAxios) process.exit(-1);
 }
-const installReduxPkg = async (typePackage) => {
-  const _chalk = await chalk;
-  shell.echo(`Installing ${_chalk.blue("redux")}`);
+const installReduxPkg = async (typePackage,typeOFScript) => {
+  shell.echo(`Installing ${chalk.blue("redux")}`);
   const installRedux = runCommand(
     `${typePackage} redux @reduxjs/toolkit && ${typePackage} -D react-redux`
   );
@@ -154,25 +177,21 @@ const installReduxPkg = async (typePackage) => {
     fs.mkdirSync("src/redux/", { recursive: true });
     fs.mkdirSync("src/redux/action", { recursive: true });
     fs.mkdirSync("src/redux/action/config", { recursive: true });
-    fs.writeFileSync("src/redux/action/config/store.jsx", "");
+    fs.writeFileSync(`src/redux/action/config/store.${typeOFScript}x`, "");
   }
   else {
     shell.echo("Setting redux folders and files");
     shell.mkdir("src/redux/");
     shell.mkdir("src/redux/action");
     shell.mkdir("src/redux/action/config");
-    shell.touch("src/redux/action/config/store.jsx");
+    shell.touch(`src/redux/action/config/store.${typeOFScript}x`);
   }
 }
-
-const installReduxThunkPkg = async (typePackage) => {
-  const _chalk = await chalk;
-
-  shell.echo(`Installing and Setting ${_chalk.blue("redux-thunk")}`);
+const installReduxThunkPkg = async (typePackage, typeOFScript) => {
+  shell.echo(`Installing and Setting ${chalk.blue("redux-thunk")}`);
   const installReduxThunk = runCommand(`${typePackage} redux-thunk`);
   if (!installReduxThunk) process.exit(-1);
-  const thunkStoreCode = `
-import { configureStore } from '@reduxjs/toolkit'
+  const thunkStoreCode = `import { configureStore } from '@reduxjs/toolkit'
 import thunk from 'redux-thunk'
 
 const store = configureStore({
@@ -181,238 +200,225 @@ const store = configureStore({
 })
 export default store`;
   if (os.type() === "Windows_NT") {
-    fs.writeFileSync("src/redux/action/config/store.jsx", thunkStoreCode);
+    fs.writeFileSync(`src/redux/action/config/store.${typeOFScript}x`, thunkStoreCode);
   }
   else {
     let writeStoreFile =
-      runCommand(`cat > src/redux/action/config/store.jsx << "EOF"
+      runCommand(`cat > src/redux/action/config/store.${typeOFScript}x << "EOF"
       ${thunkStoreCode}`);
     if (!writeStoreFile) process.exit(-1);
   }
 }
-
-const installReduxSagaPkg = async (typePackage) => {
-  const _chalk = await chalk;
-
-  shell.echo(`Installing and Setting ${_chalk.blue("redux-saga")}`);
+const installReduxSagaPkg = async (typePackage, typeOFScript) => {
+  shell.echo(`Installing and Setting ${chalk.blue("redux-saga")}`);
   const installReduxSaga = runCommand(`${typePackage} redux-saga`);
   if (!installReduxSaga) process.exit(-1);
-  const sagaStoreCode = `
-import { configureStore } from '@reduxjs/toolkit'
+  const sagaStoreCode = `import { configureStore } from '@reduxjs/toolkit'
 import createSagaMiddleware from 'redux-saga'
-
+  
 const sagaMiddleware = createSagaMiddleware()
 const saga = [sagaMiddleware]
-
+  
 const store = configureStore({
-    reducer: {},
-    middleware: [saga]
+      reducer: {},
+      middleware: [saga]
 })
 export default store`;
   if (os.type() === "Windows_NT") {
-    fs.writeFileSync("src/redux/action/config/store.jsx", thunkStoreCode);
+    fs.writeFileSync(`src/redux/action/config/store.${typeOFScript}x`, thunkStoreCode);
   }
   else {
     let writeStoreFile =
-      runCommand(`cat > src/redux/action/config/store.jsx << "EOF"
-    ${sagaStoreCode}`);
+      runCommand(`cat > src/redux/action/config/store.${typeOFScript}x << "EOF"
+      ${sagaStoreCode}`);
     if (!writeStoreFile) process.exit(-1);
   }
 }
-
 const installMuiCSSPkg = async (typePackage) => {
-  const _chalk = await chalk;
-
-  shell.echo(`Installing ${_chalk.blue("MUI")}`);
+  shell.echo(`Installing ${chalk.blue("MUI")}`);
   const installMui = runCommand(
     `${typePackage} @mui/material @emotion/react @emotion/styled && ${typePackage} postcss-loader`
   );
   if (!installMui) process.exit(-1);
 }
-
-const installBootstrapCSSPkg = async (typePackage) => {
-  const _chalk = await chalk;
-
-  shell.echo(`Installing ${_chalk.blue("Bootstrap")}`);
+const installBootstrapCSSPkg = async (typePackage, typeOFScript) => {
+  shell.echo(`Installing ${chalk.blue("Bootstrap")}`);
   const installBootstrap = runCommand(
     `${typePackage} react-bootstrap bootstrap postcss-loader precss autoprefixer sass-loader --save`
   );
   if (!installBootstrap) process.exit(-1);
-  const bootstrapIndexCode = `
-import React from "react";
+  const bootstrapIndexCodejsx = `import React from "react";
+  import { createRoot } from "react-dom/client";
+  import App from "./App";
+  import 'bootstrap/dist/css/bootstrap.min.css';
+  
+  const rootElement = document.getElementById("root");
+  const root = createRoot(rootElement);
+  root.render(
+   <React.StrictMode>
+      <App />
+   </React.StrictMode>
+  );`
+  const bootstrapIndexCodetsx = `import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const rootElement = document.getElementById("root");
-const root = createRoot(rootElement);
+
+const root = createRoot(rootElement!);
+
 root.render(
- <React.StrictMode>
+  <StrictMode>
     <App />
- </React.StrictMode>
-);`
+  </StrictMode>
+);
+  `
   if (os.type() === "Windows_NT") {
-    fs.writeFileSync("src/index.jsx", bootstrapIndexCode);
+    fs.writeFileSync(`src/index.${typeOFScript}x`, typeOFScript === "js" ? bootstrapIndexCodejsx : bootstrapIndexCodetsx);
   } else {
-    let writeBootstrapConfig = runCommand(`cat > src/index.jsx << "EOF"
-${bootstrapIndexCode}`);
+    let writeBootstrapConfig = runCommand(`cat > src/index.${typeOFScript}x << "EOF"
+  ${typeOFScript === "js" ? bootstrapIndexCodejsx : bootstrapIndexCodetsx}`);
     if (!writeBootstrapConfig) process.exit(-1);
   }
 }
-
-const installTailwindCSSPkg = async (typePackage) => {
-  const _chalk = await chalk;
-
+const installTailwindCSSPkg = async (typePackage, typeOFScript) => {
   shell.echo(
-    `Installing and Configuring ${_chalk.blue("TailwindCSS")}`
+    `Installing and Configuring ${chalk.blue("TailwindCSS")}`
   );
   const installTailwind = runCommand(
     `${typePackage} -D postcss-preset-env tailwindcss autoprefixer && ${typePackage} postcss-loader`
   );
   if (!installTailwind) process.exit(-1);
   const tailwindConfig = `
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-content: [
-"./src/**/*.{js,jsx,ts,tsx}",
-],
-theme: {
-extend: {},
-},
-plugins: [],
-}
-`
+  /** @type {import('tailwindcss').Config} */
+  module.exports = {
+  content: [
+  "./src/**/*.{js,jsx,ts,tsx}",
+  ],
+  theme: {
+  extend: {},
+  },
+  plugins: [],
+  }
+  `
   const postCssConfig = `
-const tailwindcss = require('tailwindcss');
-const autoprefixer = require('autoprefixer');
-        
-module.exports = {
-plugins: [tailwindcss('./tailwind.config.cjs'), autoprefixer],
-};
-`
+  const tailwindcss = require('tailwindcss');
+  const autoprefixer = require('autoprefixer');
+          
+  module.exports = {
+  plugins: [tailwindcss('./tailwind.config.cjs'), autoprefixer],
+  };
+  `
   const indexCSS = `
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-`
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+  `
   const indexJSXContent = `
-import React from "react";
+  import React from "react";
+  import { createRoot } from "react-dom/client";
+  import App from "./App";
+  import "./index.css";
+  
+  const rootElement = document.getElementById("root");
+  const root = createRoot(rootElement);
+  root.render(
+  <React.StrictMode>
+  <App />
+  </React.StrictMode>
+  );
+  `
+  const indexTSXContent = `
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
 const rootElement = document.getElementById("root");
-const root = createRoot(rootElement);
+
+const root = createRoot(rootElement!);
+
 root.render(
-<React.StrictMode>
-<App />
-</React.StrictMode>
+  <StrictMode>
+    <App />
+  </StrictMode>
 );
-`
+
+  `
   if (os.type() === "Windows_NT") {
     fs.writeFileSync('tailwind.config.cjs', tailwindConfig)
     fs.writeFileSync('postcss.config.cjs', tailwindConfig)
-    fs.writeFileSync('src/index.jsx', indexJSXContent)
+    fs.writeFileSync(`src/index.${typeOFScript}x`, typeOFScript === "js" ? indexJSXContent : indexTSXContent)
     fs.writeFileSync('src/index.css', indexCSS)
   }
   else {
     shell.touch("tailwind.config.cjs");
     let writeTailwindConfig =
       runCommand(`cat > tailwind.config.cjs << "EOF"
-${tailwindConfig}`);
+  ${tailwindConfig}`);
     if (!writeTailwindConfig) process.exit(-1);
     shell.touch("postcss.config.cjs");
     let writePostCSSConfig =
       runCommand(`cat > postcss.config.cjs << "EOF"
-${postCssConfig}`);
+  ${postCssConfig}`);
     if (!writePostCSSConfig) process.exit(-1);
     shell.touch("src/index.css");
     let writeglobalTailwindCss =
       runCommand(`cat > src/index.css << "EOF"
-${indexCSS}`);
+  ${indexCSS}`);
     if (!writeglobalTailwindCss) process.exit(-1);
-    let changedIndexjs = runCommand(`cat > src/index.jsx << "EOF"
-${indexJSXContent}`);
+    let changedIndexjs = runCommand(`cat > src/index.${typeOFScript}x << "EOF"
+    ${typeOFScript === "js" ? indexJSXContent : indexTSXContent}`);
     if (!changedIndexjs) process.exit(-1);
   }
 }
-
 const generateFolder = async () => {
-  const _chalk = await chalk;
-  await init();
-  inquirer
-    .prompt(questions)
-    .then(async (answers) => {
-      const {
-        projectName,
-        packageManger,
-        addRouter,
-        addAxios,
-        addRedux,
-        middlewareType,
-        cssFramework,
-      } = answers;
-      let typePackage = packageManger === "npm" ? "npm install" : "yarn add"
-      await createProjectDirectory(projectName);
+  await init()
+  try {
+    let userresponse = await generateQuestionsForFolder()
+    let { folderName, typeOFScript, packageManger, addRouter, addAxios, addRedux, reduxMiddlewareType, cssFramework } = await userresponse
+    let typePackage = packageManger === "npm" ? "npm install" : "yarn add"
+    let isFolderCreated = await createProjectDirectory(folderName, typeOFScript);
+    if (!isFolderCreated) { console.log(chalk.redBright("Already a folder exist")); return; }
+    else {
       await intializeGitAndPackage(packageManger)
-      if (addRouter) {
-        await installRouterPkg(typePackage)
-      }
-      if (addAxios) {
-        await installAxiosPkg(typePackage)
-      }
+      if (addRouter) await installRouterPkg(typePackage)
+      if (addAxios) await installAxiosPkg(typePackage)
       if (addRedux) {
-        await installReduxPkg(typePackage)
-
-        if (middlewareType === "redux-thunk") {
-          await installReduxThunkPkg(typePackage)
-        }
-        if (middlewareType === "redux-saga") {
-          await installReduxSagaPkg(typePackage)
-        }
-        /*if (middlewareType === "redux-promise-middleware") {
-                shell.echo("Installing and Setting redux-promise-middleware")
-                const installReduxPM = runCommand('npm i redux-promise-middleware -s')
-                if (!installReduxPM) process.exit(-1)
-                let writeStoreFile = runCommand(`cat > src/redux/action/config/store.jsx << "EOF"
-    import { configureStore } from '@reduxjs/toolkit'
-    import promise from 'redux-promise-middleware'
-    
-    const store = configureStore({
-        reducer: {},
-        middleware: [promise]
-    })
-    export default store`)
-                if (!writeStoreFile) process.exit(0)
-            }*/
+        await installReduxPkg(typePackage, typeOFScript)
+        if (reduxMiddlewareType === "redux-thunk") await installReduxThunkPkg(typePackage, typeOFScript)
+        else if (reduxMiddlewareType === "redux-saga") await installReduxSagaPkg(typePackage, typeOFScript)
+        else return;
       }
-      if (cssFramework !== "None of the above") {
-        switch (cssFramework) {
-          case "MUI":
-            await installMuiCSSPkg(typePackage)
-            break;
-          case "Bootstrap":
-            await installBootstrapCSSPkg(typePackage)
-            break;
-          case "TailwindCSS":
-            await installTailwindCSSPkg(typePackage)
-            break;
+      if (cssFramework !== 'None') switch (cssFramework) {
+        case "MUI":
+          await installMuiCSSPkg(typePackage)
+          break;
+        case "Bootstrap":
+          await installBootstrapCSSPkg(typePackage, typeOFScript)
+          break;
+        case "TailwindCSS":
+          await installTailwindCSSPkg(typePackage, typeOFScript)
+          break;
 
-          default:
-            break;
-        }
+        default:
+          break;
       }
+      shell.echo(``)
       shell.echo(
-        `${_chalk.greenBright(projectName + " successfully created")}`
+        `${chalk.greenBright(chalk.bold(folderName) + " successfully created")}`
       );
       shell.echo(`To run the project:`);
-      shell.echo(`    ${_chalk.blue("cd " + projectName)}`);
-      shell.echo(`    ${_chalk.blue(`${packageManger} run dev`)}`);
-      shell.echo(`${_chalk.red(_chalk.bold("Happy Coding!!!"))}`);
-    }).catch((error) => {
-      shell.echo("Process being interrpeted");
-      shell.echo(error);
-    });
-};
+      shell.echo(`    ${chalk.blue("cd " + chalk.bold(folderName))}`);
+      shell.echo(`    ${chalk.blue(`${packageManger} run dev`)}`);
+      shell.echo(`${chalk.red(chalk.bold("Happy Coding!!!"))}`);
+
+    }
+  } catch (error) {
+    console.log(error)
+    shell.echo(chalk.bold(chalk.redBright("Forced Closed")))
+  }
+}
 
 generateFolder()
