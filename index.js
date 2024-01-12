@@ -34,6 +34,10 @@ const runCommand = (command) => {
   return true;
 }
 
+const forceClosed = () => {
+  shell.echo(chalk.bold(chalk.redBright("Forced Closed")))
+}
+
 const generateQuestionsForFolder = async () => {
   const folderName = await input({
     message: 'Enter your folder name: ',
@@ -41,7 +45,7 @@ const generateQuestionsForFolder = async () => {
       if (input === "") return 'Folder name cannot be empty'
       return true
     }
-  });
+  }).catch(e => { forceClosed(); process.exit(0) });
   const typeOFScript = await select({
     message: 'Will you be using TypeScript or JavaScript?',
     choices: [
@@ -55,7 +59,7 @@ const generateQuestionsForFolder = async () => {
       },
     ],
     default: 'js'
-  })
+  }).catch(e => { forceClosed(); process.exit(0) })
   const packageManger = await select({
     message: 'Select a package manager:',
     choices: [
@@ -70,10 +74,10 @@ const generateQuestionsForFolder = async () => {
         description: 'yarn is an awesome package manager',
       },
     ],
-  });
-  const addRouter = await confirm({ message: 'Do you want to add router to the project(react-router)?', });
-  const addAxios = await confirm({ message: 'Do you want to add axios for API calls?' });
-  const addRedux = await confirm({ message: 'Do you want to add redux?' })
+  }).catch(e => { forceClosed(); process.exit(0) });
+  const addRouter = await confirm({ message: 'Do you want to add router to the project(react-router)?', }).catch(e => { forceClosed(); process.exit(0) });
+  const addAxios = await confirm({ message: 'Do you want to add axios for API calls?' }).catch(e => { forceClosed(); process.exit(0) });
+  const addRedux = await confirm({ message: 'Do you want to add redux?' }).catch(e => { forceClosed(); process.exit(0) })
   const reduxMiddlewareType = addRedux === true && await select({
     message: `Please choose the Redux's middleware the project:`,
     choices: [
@@ -89,7 +93,7 @@ const generateQuestionsForFolder = async () => {
       },
     ],
     default: "redux-thunk",
-  });
+  }).catch(e => { forceClosed(); process.exit(0) });
   const cssFramework = await select({
     message: 'Please choose the css framework',
     choices: [
@@ -99,7 +103,7 @@ const generateQuestionsForFolder = async () => {
       { name: 'None of the above', value: 'None' },
 
     ],
-  });
+  }).catch(e => { forceClosed(); process.exit(0) });
   return { folderName, typeOFScript, packageManger, addRouter, addAxios, addRedux, reduxMiddlewareType, cssFramework }
 }
 
@@ -167,7 +171,7 @@ const installAxiosPkg = async (typePackage) => {
   const installAxios = runCommand(`${typePackage} axios`);
   if (!installAxios) process.exit(-1);
 }
-const installReduxPkg = async (typePackage,typeOFScript) => {
+const installReduxPkg = async (typePackage, typeOFScript) => {
   shell.echo(`Installing ${chalk.blue("redux")}`);
   const installRedux = runCommand(
     `${typePackage} redux @reduxjs/toolkit && ${typePackage} -D react-redux`
@@ -191,13 +195,15 @@ const installReduxThunkPkg = async (typePackage, typeOFScript) => {
   shell.echo(`Installing and Setting ${chalk.blue("redux-thunk")}`);
   const installReduxThunk = runCommand(`${typePackage} redux-thunk`);
   if (!installReduxThunk) process.exit(-1);
-  const thunkStoreCode = `import { configureStore } from '@reduxjs/toolkit'
+  const thunkStoreCode = `
+import { configureStore } from '@reduxjs/toolkit'
 import thunk from 'redux-thunk'
-
+  
 const store = configureStore({
     reducer: {},
-    middleware: [thunk]
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({thunk:true})
 })
+  
 export default store`;
   if (os.type() === "Windows_NT") {
     fs.writeFileSync(`src/redux/action/config/store.${typeOFScript}x`, thunkStoreCode);
@@ -416,8 +422,8 @@ const generateFolder = async () => {
 
     }
   } catch (error) {
-    console.log(error)
-    shell.echo(chalk.bold(chalk.redBright("Forced Closed")))
+    forceClosed()
+    process.exit(0)
   }
 }
 
