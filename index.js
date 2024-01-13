@@ -13,9 +13,9 @@ import gradient from 'gradient-string';
 
 const init = async () => {
   console.log(gradient([
-    { color: '#d8e0de', pos: 0 },
-    { color: '#255B53', pos: 0.8 },
-    { color: '#000000', pos: 1 }
+    { color: '#f72585'},
+    { color: '#f4f1de' },
+    { color: '#f4a261' }
   ])(figlet.textSync("CREATE RP APP", {
     font: "Ogre",
     horizontalLayout: "default",
@@ -195,7 +195,17 @@ const installReduxThunkPkg = async (typePackage, typeOFScript) => {
   shell.echo(`Installing and Setting ${chalk.blue("redux-thunk")}`);
   const installReduxThunk = runCommand(`${typePackage} redux-thunk`);
   if (!installReduxThunk) process.exit(-1);
-  const thunkStoreCode = `
+  const thunkStoreJSXCode = `
+import { configureStore } from '@reduxjs/toolkit'
+import thunk from 'redux-thunk'
+  
+const store = configureStore({
+    reducer: {},
+    middleware: [thunk]
+})
+  
+export default store`;
+  const thunkStoreTSXCode = `
 import { configureStore } from '@reduxjs/toolkit'
 import thunk from 'redux-thunk'
   
@@ -206,12 +216,12 @@ const store = configureStore({
   
 export default store`;
   if (os.type() === "Windows_NT") {
-    fs.writeFileSync(`src/redux/action/config/store.${typeOFScript}x`, thunkStoreCode);
+    fs.writeFileSync(`src/redux/action/config/store.${typeOFScript}x`, typeOFScript === "js" ? thunkStoreJSXCode : thunkStoreTSXCode);
   }
   else {
     let writeStoreFile =
       runCommand(`cat > src/redux/action/config/store.${typeOFScript}x << "EOF"
-      ${thunkStoreCode}`);
+      ${typeOFScript === "js" ? thunkStoreJSXCode : thunkStoreTSXCode}`);
     if (!writeStoreFile) process.exit(-1);
   }
 }
@@ -219,7 +229,8 @@ const installReduxSagaPkg = async (typePackage, typeOFScript) => {
   shell.echo(`Installing and Setting ${chalk.blue("redux-saga")}`);
   const installReduxSaga = runCommand(`${typePackage} redux-saga`);
   if (!installReduxSaga) process.exit(-1);
-  const sagaStoreCode = `import { configureStore } from '@reduxjs/toolkit'
+  const sagaStoreJSXCode = `
+import { configureStore } from '@reduxjs/toolkit'
 import createSagaMiddleware from 'redux-saga'
   
 const sagaMiddleware = createSagaMiddleware()
@@ -230,13 +241,24 @@ const store = configureStore({
       middleware: [saga]
 })
 export default store`;
+  const sagaStoreTSXCode = `
+import { configureStore } from '@reduxjs/toolkit'
+import createSagaMiddleware from 'redux-saga'
+  
+const sagaMiddleware = createSagaMiddleware()
+  
+const store = configureStore({
+      reducer: {},
+      middleware: (gDM) => gDM().concat(sagaMiddleware)
+})
+export default store;`
   if (os.type() === "Windows_NT") {
-    fs.writeFileSync(`src/redux/action/config/store.${typeOFScript}x`, thunkStoreCode);
+    fs.writeFileSync(`src/redux/action/config/store.${typeOFScript}x`, typeOFScript === "js" ? sagaStoreJSXCode : sagaStoreTSXCode);
   }
   else {
     let writeStoreFile =
       runCommand(`cat > src/redux/action/config/store.${typeOFScript}x << "EOF"
-      ${sagaStoreCode}`);
+      ${typeOFScript === "js" ? sagaStoreJSXCode : sagaStoreTSXCode}`);
     if (!writeStoreFile) process.exit(-1);
   }
 }
