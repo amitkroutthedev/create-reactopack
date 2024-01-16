@@ -6,7 +6,7 @@
 
 <h2>🚀 Demo</h2>
 
-[https://raw.githubusercontent.com/amitkroutthedev/create-reactopack/main/assets/RP.gif](https://raw.githubusercontent.com/amitkroutthedev/super-react-app/main/assets/RP.gif)
+[https://raw.githubusercontent.com/amitkroutthedev/create-reactopack/main/assets/RP.gif](https://raw.githubusercontent.com/amitkroutthedev/create-reactopack/main/assets/create-rp.gif)
 
   
 <h2>🧐 Features</h2>
