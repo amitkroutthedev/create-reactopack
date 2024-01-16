@@ -2,7 +2,7 @@
 
 <p align="center">Get started with the Reactopack by running <code>npx create-rp-app</code></p>
 
-<p align="center"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="shields"><img src="https://img.shields.io/npm/v/create-sra.svg?logo=npm" alt="shields"><img src="https://img.shields.io/npm/dt/create-sra?logo=npm" alt="shields"><img src="https://img.shields.io/bundlephobia/min/create-sra?logo=npm" alt="shields"></p>
+<p align="center"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="shields"><img src="https://img.shields.io/npm/v/create-rp-app.svg?logo=npm" alt="shields"><img src="https://img.shields.io/npm/dt/create-rp-app?logo=npm" alt="shields"><img src="https://img.shields.io/bundlephobia/min/create-rp-app?logo=npm" alt="shields"></p>
 
 <h2>🚀 Demo</h2>
 
