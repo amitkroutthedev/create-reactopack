@@ -1,13 +1,27 @@
 {
   "name": "create-rp-app",
-  "version": "1.0.4",
+  "version": "1.0.2",
   "type": "module",
   "description": "It's a npx command tool to create a react project with the help of webpack and give choices to user to add important packages and popular css frameworks.",
-  "exports": "./index.js",
+  "license": "MIT",
+  "exports": "./src/index.js",
   "bin": {
-    "create-rp-app": "index.js"
+    "create-rp-app": "./src/index.js"
   },
-  "scripts": {},
+  "scripts": {
+    "start": "node ./src/index.js",
+    "build": "esbuild ./src/index.js --bundle --outdir=dist --platform=node"
+  },
+  "files": [
+    "assets",
+    "packages",
+    "src",
+    ".gitignore",
+    "LICENSE",
+    "package-lock.json",
+    "package.json",
+    "README.md"
+  ],
   "keywords": [
     "axios",
     "redux",
@@ -22,20 +36,24 @@
     "bootstrap"
   ],
   "author": "amitkrout",
-  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/amitkroutthedev/super-react-app/issues"
+    "url": "https://github.com/amitkroutthedev/create-rp-app/issues"
   },
-  "homepage": "https://github.com/amitkroutthedev/super-react-app#readme",
+  "homepage": "https://github.com/amitkroutthedev/create-rp-app#readme",
   "dependencies": {
-    "@inquirer/prompts": "3.3.0",
+    "@inquirer/prompts": "^3.3.0",
     "center-align": "1.0.1",
     "chalk": "5.3.0",
     "figlet": "1.7.0",
     "gradient-string": "^2.0.2",
     "inquirer": "9.2.12",
-    "ora": "8.0.1",
-    "postcss-loader": "7.3.4",
     "shelljs": "0.8.5"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.5.8",
+    "@types/gradient-string": "^1.1.5",
+    "esbuild": "0.19.11",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   }
 }

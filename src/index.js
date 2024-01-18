@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import shell from 'shelljs'
 import * as fs from 'fs';
 import * as path from 'path';
@@ -449,4 +451,5 @@ const generateFolder = async () => {
   }
 }
 
-generateFolder()
+//export const buildPackge = generateFolder()
+export default generateFolder()
