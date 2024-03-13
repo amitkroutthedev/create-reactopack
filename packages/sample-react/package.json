@@ -25,10 +25,10 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
-    "css-loader": "^6.8.1",
-    "detect-port-alt": "^1.1.6",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "style-loader": "^3.3.3"
+    "css-loader": "^6.10.0",
+    "detect-port-alt": "1.1.6",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "style-loader": "^3.3.4"
   }
 }

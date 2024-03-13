@@ -1,21 +1,19 @@
 {
   "name": "create-rp-app",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "type": "module",
   "description": "It's a npx command tool to create a react project with the help of webpack and give choices to user to add important packages and popular css frameworks.",
   "license": "MIT",
-  "exports": "./src/index.js",
+  "exports": "./dist/index.js",
   "bin": {
-    "create-rp-app": "./src/index.js"
+    "create-rp-app": "./dist/index.js"
   },
   "scripts": {
-    "start": "node ./src/index.js",
-    "build": "esbuild ./src/index.js --bundle --outdir=dist --platform=node"
+    "build": "tsup",
+    "start": "node ./dist/index.js"
   },
   "files": [
-    "assets",
     "packages",
-    "src",
     ".gitignore",
     "LICENSE",
     "package-lock.json",
@@ -41,17 +39,19 @@
   },
   "homepage": "https://github.com/amitkroutthedev/create-rp-app#readme",
   "dependencies": {
-    "@inquirer/prompts": "^3.3.0",
-    "center-align": "1.0.1",
+    "@inquirer/prompts": "4.1.0",
     "chalk": "5.3.0",
     "figlet": "1.7.0",
     "gradient-string": "^2.0.2",
-    "inquirer": "9.2.12",
-    "shelljs": "0.8.5"
+    "inquirer": "9.2.15",
+    "shelljs": "0.8.5",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "@types/figlet": "^1.5.8",
     "@types/gradient-string": "^1.1.5",
+    "@types/shelljs": "^0.8.15",
     "esbuild": "0.19.11",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"

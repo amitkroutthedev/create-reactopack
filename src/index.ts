@@ -12,12 +12,11 @@ import chalk from 'chalk';
 import figlet from 'figlet';
 import gradient from 'gradient-string';
 
-
 const init = async () => {
   console.log(gradient([
-    { color: '#f72585'},
-    { color: '#f4f1de' },
-    { color: '#f4a261' }
+    '#f72585',
+    '#f4f1de',
+    '#f4a261'
   ])(figlet.textSync("CREATE RP APP", {
     font: "Ogre",
     horizontalLayout: "default",
@@ -26,7 +25,7 @@ const init = async () => {
   console.log(chalk.bold(chalk.magenta(">>>>>>  Welcome to REACTOPACK")))
 };
 
-const runCommand = (command) => {
+const runCommand = (command:string) => {
   try {
     execSync(`${command}`, { stdio: "inherit" });
   } catch (error) {
@@ -109,7 +108,7 @@ const generateQuestionsForFolder = async () => {
   return { folderName, typeOFScript, packageManger, addRouter, addAxios, addRedux, reduxMiddlewareType, cssFramework }
 }
 
-const createProjectDirectory = async (projectName, typeOFScript) => {
+const createProjectDirectory = async (projectName:string, typeOFScript:string) => {
   let __dirname = path.resolve();
   const conflicts = fs.readdirSync(__dirname).includes(projectName)
   if (conflicts) { return false; }
@@ -138,7 +137,7 @@ const createProjectDirectory = async (projectName, typeOFScript) => {
   return true
 }
 
-const intializeGitAndPackage = async (packageManger) => {
+const intializeGitAndPackage = async (packageManger:string) => {
   const installInitial = runCommand(packageManger === "npm" ? "npm install" : "yarn");
   if (!installInitial) process.exit(-1);
   runCommand(`echo 'node_module' > .gitignore`)
@@ -146,7 +145,7 @@ const intializeGitAndPackage = async (packageManger) => {
   runCommand(`git init`)
   shell.echo("Configuring selected packages with project");
 }
-const installRouterPkg = async (typePackage) => {
+const installRouterPkg = async (typePackage:string) => {
   shell.echo(
     `Installing ${chalk.blue(
       "react-router"
@@ -158,7 +157,7 @@ const installRouterPkg = async (typePackage) => {
     try {
       fs.mkdirSync("src/router", { recursive: true });
       fs.writeFileSync("src/router/CustomRouter.jsx", "");
-    } catch (error) {
+    } catch (error:any) {
       console.error(`Error: ${error.message}`);
       process.exit(-1);
     }
@@ -168,12 +167,12 @@ const installRouterPkg = async (typePackage) => {
     shell.touch("src/router/CustomRouter.jsx");
   }
 }
-const installAxiosPkg = async (typePackage) => {
+const installAxiosPkg = async (typePackage:string) => {
   shell.echo(`Installing ${chalk.blue("axios")}`);
   const installAxios = runCommand(`${typePackage} axios`);
   if (!installAxios) process.exit(-1);
 }
-const installReduxPkg = async (typePackage, typeOFScript) => {
+const installReduxPkg = async (typePackage:string, typeOFScript:string) => {
   shell.echo(`Installing ${chalk.blue("redux")}`);
   const installRedux = runCommand(
     `${typePackage} redux @reduxjs/toolkit && ${typePackage} -D react-redux`
@@ -193,7 +192,7 @@ const installReduxPkg = async (typePackage, typeOFScript) => {
     shell.touch(`src/redux/action/config/store.${typeOFScript}x`);
   }
 }
-const installReduxThunkPkg = async (typePackage, typeOFScript) => {
+const installReduxThunkPkg = async (typePackage:string, typeOFScript:string) => {
   shell.echo(`Installing and Setting ${chalk.blue("redux-thunk")}`);
   const installReduxThunk = runCommand(`${typePackage} redux-thunk`);
   if (!installReduxThunk) process.exit(-1);
@@ -227,7 +226,7 @@ export default store`;
     if (!writeStoreFile) process.exit(-1);
   }
 }
-const installReduxSagaPkg = async (typePackage, typeOFScript) => {
+const installReduxSagaPkg = async (typePackage:string, typeOFScript:string) => {
   shell.echo(`Installing and Setting ${chalk.blue("redux-saga")}`);
   const installReduxSaga = runCommand(`${typePackage} redux-saga`);
   if (!installReduxSaga) process.exit(-1);
@@ -264,14 +263,14 @@ export default store;`
     if (!writeStoreFile) process.exit(-1);
   }
 }
-const installMuiCSSPkg = async (typePackage) => {
+const installMuiCSSPkg = async (typePackage:string) => {
   shell.echo(`Installing ${chalk.blue("MUI")}`);
   const installMui = runCommand(
     `${typePackage} @mui/material @emotion/react @emotion/styled && ${typePackage} postcss-loader`
   );
   if (!installMui) process.exit(-1);
 }
-const installBootstrapCSSPkg = async (typePackage, typeOFScript) => {
+const installBootstrapCSSPkg = async (typePackage:string, typeOFScript:string) => {
   shell.echo(`Installing ${chalk.blue("Bootstrap")}`);
   const installBootstrap = runCommand(
     `${typePackage} react-bootstrap bootstrap postcss-loader precss autoprefixer sass-loader --save`
@@ -312,7 +311,7 @@ root.render(
     if (!writeBootstrapConfig) process.exit(-1);
   }
 }
-const installTailwindCSSPkg = async (typePackage, typeOFScript) => {
+const installTailwindCSSPkg = async (typePackage:string, typeOFScript:string) => {
   shell.echo(
     `Installing and Configuring ${chalk.blue("TailwindCSS")}`
   );

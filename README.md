@@ -2,22 +2,25 @@
 
 <p align="center">Get started with the Reactopack by running <code>npx create-rp-app</code></p>
 
-<p align="center"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="shields"><img src="https://img.shields.io/npm/v/create-rp-app.svg?logo=npm" alt="shields"><img src="https://img.shields.io/npm/dt/create-rp-app?logo=npm" alt="shields"><img src="https://img.shields.io/bundlephobia/min/create-rp-app?logo=npm" alt="shields"></p>
+<p align="center">
+<img src="https://img.shields.io/badge/License-MIT-green.svg" alt="shields">
+<img src="https://img.shields.io/npm/v/create-rp-app.svg?logo=npm" alt="shields">
+<img src="https://img.shields.io/npm/dt/create-rp-app?logo=npm" alt="shields">
+</p>
 
 <h2>🚀 Demo</h2>
 
-<img src="https://raw.githubusercontent.com/amitkroutthedev/create-reactopack/main/assets/rp-code.gif" alt="demo"/>
+![demolink](https://raw.githubusercontent.com/amitkroutthedev/create-reactopack/main/assets/rp-code.gif)
 
-  
 <h2>🧐 Features</h2>
 
 Here're some of the project's best features:
 
-*   Clean react project
-*   No vulnerability
-*   Superfast
-*   Integrated with webpack and latest packages
-*   Flexibility to choose from important packages (package manager,axios,react-router,redux,css frameworks,js/ts) to download
+- Clean react project
+- No vulnerability
+- Superfast
+- Integrated with webpack and latest packages
+- Flexibility to choose from important packages (package manager,axios,react-router,redux,css frameworks,js/ts) to download
 
 <h2>Why Reactopack?</h2>
 
@@ -36,11 +39,30 @@ With Reactopack, you can focus on building amazing frontend applications without
 
 Technologies used in the project:
 
-*   @inquirer/prompts
-*   chalk
-*   figlet
-*   ora
-*   shelljs
+- @inquirer/prompts
+- chalk
+- figlet
+- ora
+- shelljs
+
+<h2>Versions</h2>
+<ul>
+<li><b>1.0.5</b>
+    <ul>
+    <li>Minified the packge</li>
+    </ul>
+  </li>
+  <li><b>1.0.2</b>
+    <ul>
+    <li>Added support for typescript</li>
+    </ul>
+  </li>
+  <li><b>1.0.1</b>
+    <ul>
+    <li>Introduced the functionality to choose different package managers.</li>
+    </ul>
+  </li>
+</ul>
 
 <h2>🛡️ License:</h2>
 
@@ -49,4 +71,3 @@ This project is licensed under the MIT
 ## Issues
 
 If you find any issues or bugs, please create a new issue in the repository
-
