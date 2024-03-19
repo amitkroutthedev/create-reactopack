@@ -1,6 +1,6 @@
 {
   "name": "create-rp-app",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "type": "module",
   "description": "It's a npx command tool to create a react project with the help of webpack and give choices to user to add important packages and popular css frameworks.",
   "license": "MIT",
@@ -9,7 +9,7 @@
     "create-rp-app": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && shx rm -rf dist/templates && shx cp -r templates dist",
     "start": "node ./dist/index.js"
   },
   "files": [
@@ -40,11 +40,14 @@
   "homepage": "https://github.com/amitkroutthedev/create-rp-app#readme",
   "dependencies": {
     "@inquirer/prompts": "4.1.0",
+    "@types/ejs": "^3.1.5",
     "chalk": "5.3.0",
+    "ejs": "^3.1.9",
     "figlet": "1.7.0",
     "gradient-string": "^2.0.2",
     "inquirer": "9.2.15",
     "shelljs": "0.8.5",
+    "shx": "^0.3.4",
     "tsup": "^8.0.2",
     "typescript": "^5.3.3"
   },
