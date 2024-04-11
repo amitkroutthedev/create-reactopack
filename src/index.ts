@@ -1,20 +1,15 @@
 #!/usr/bin/env node
-
-import shell from "shelljs";
-import * as fs from "fs";
+import * as fs from 'fs';
 import * as os from "os";
-import { execSync } from "child_process";
+import * as path from 'path';
 import { input, select, confirm } from "@inquirer/prompts";
-import chalk from "chalk";
-import figlet from "figlet";
+import chalk from 'chalk';
+import * as shell from 'shelljs';
+import { execSync } from 'child_process';
 import gradient from "gradient-string";
+import figlet from "figlet";
 
-import path from "node:path";
-import url from "node:url";
-
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-
-const CURR_DIR = process.cwd();
+const CHOICES = fs.readdirSync(path.join(__dirname, 'templates'));
 
 const init = async () => {
   console.log(
@@ -28,6 +23,22 @@ const init = async () => {
   );
   console.log(chalk.bold(chalk.magenta(">>>>>>  Welcome to REACTOPACK")));
 };
+
+interface UserRequest {
+  addRouter: boolean
+  addAxios: boolean
+  addRedux: boolean
+  reduxMiddlewareType: boolean | string
+  CSSFramework: string
+}
+interface CliOptions {
+  projectName: string
+  templateName: string
+  templatePath: string
+  tartgetPath: string
+}
+const CURR_DIR = process.cwd();
+
 
 const runCommand = (command: string) => {
   try {
@@ -59,14 +70,13 @@ const generateQuestionsForFolder = async () => {
     choices: [
       {
         name: "Javascript",
-        value: "js",
+        value: CHOICES[0],
       },
       {
         name: "Typescript",
-        value: "ts",
+        value: CHOICES[1],
       },
-    ],
-    default: "js",
+    ]
   }).catch((e) => {
     forceClosed();
     process.exit(0);
@@ -152,95 +162,48 @@ const generateQuestionsForFolder = async () => {
     forceClosed();
     process.exit(0);
   });
-  return {
-    folderName,
-    typeOFScript,
-    packageManger,
-    addRouter,
-    addAxios,
-    addRedux,
-    reduxMiddlewareType,
-    cssFramework,
-  };
+  return { typeOFScript, folderName, packageManger, addRouter, addAxios, addRedux, reduxMiddlewareType, cssFramework }
 };
-const createProjectDirectory = async (
-  projectName: string
-) => {
-  if (fs.existsSync(projectName)) {
-    console.log(
-      chalk.red(`Folder ${projectName} exists. Delete or use another name.`)
-    );
+
+function createProject(projectPath: string) {
+  if (fs.existsSync(projectPath)) {
+    console.log(chalk.red(`Folder ${projectPath} exists. Delete or use another name.`));
     return false;
   }
-  fs.mkdirSync(projectName);
+  fs.mkdirSync(projectPath);
 
   return true;
-};
-const createDirectoryContents = async (
-  templatePath: string,
-  newProjectPath: string
-): Promise<boolean> => {
-  try {
-    const filesToCreate = fs.readdirSync(templatePath);
+}
+// list of file/folder that should not be copied
+const SKIP_FILES = ['node_modules', '.template.json'];
+function createDirectoryContents(templatePath: string, projectName: string) {
+  // read all files/folders (1 level) from template folder
+  const filesToCreate = fs.readdirSync(templatePath);
+  // loop each file/folder
+  filesToCreate.forEach(file => {
+    const origFilePath = path.join(templatePath, file);
 
-    filesToCreate.forEach((file) => {
-      const origFilePath = `${templatePath}/${file}`;
-      // get stats about the current file
-      const stats = fs.statSync(origFilePath);
-      if (stats.isFile()) {
-        const contents = fs.readFileSync(origFilePath, "utf8");
-        if (file === ".npmignore") file = ".gitignore";
+    // get stats about the current file
+    const stats = fs.statSync(origFilePath);
 
-        const writePath = `${CURR_DIR}/${newProjectPath}/${file}`;
-        fs.writeFileSync(writePath, contents, "utf8");
-      } else if (stats.isDirectory()) {
-        fs.mkdirSync(`${CURR_DIR}/${newProjectPath}/${file}`);
+    // skip files that should not be copied
+    if (SKIP_FILES.indexOf(file) > -1) return;
 
-        // recursive call
-        createDirectoryContents(
-          `${templatePath}/${file}`,
-          `${newProjectPath}/${file}`
-        );
-      }
-    });
-    return true;
-  } catch (error) {
-    console.error("An error occurred:", error);
-    return false;
-  }
-};
-
-/*const intializeGitAndPackage = async (packageManger: string) => {
-  const installInitial = runCommand(
-    packageManger === "npm" ? "npm install" : "yarn"
-  );
-  if (!installInitial) process.exit(-1);
-  runCommand(`echo 'node_module' > .gitignore`);
-  console.log(chalk.blueBright("Initializing git"));
-  runCommand(`git init`);
-  shell.echo("Configuring selected packages with project");
-};*/
-const installRouterPkg = async (typePackage: string) => {
-  shell.echo(
-    `Installing ${chalk.blue(
-      "react-router"
-    )} and creating router files inside src/ folder`
-  );
-  const installRouter = runCommand(`${typePackage} react-router-dom`);
-  if (!installRouter) process.exit(-1);
-  if (os.type() === "Windows_NT") {
-    try {
-      fs.mkdirSync("src/router", { recursive: true });
-      fs.writeFileSync("src/router/CustomRouter.jsx", "");
-    } catch (error: any) {
-      console.error(`Error: ${error.message}`);
-      process.exit(-1);
+    if (stats.isFile()) {
+      // read file content and transform it using template engine
+      let contents = fs.readFileSync(origFilePath, 'utf8');
+      // write file to destination folder
+      const writePath = path.join(CURR_DIR, projectName, file);
+      fs.writeFileSync(writePath, contents, 'utf8');
+    } else if (stats.isDirectory()) {
+      // create folder in destination folder
+      fs.mkdirSync(path.join(CURR_DIR, projectName, file));
+      // copy files/folder inside current folder recursively
+      createDirectoryContents(path.join(templatePath, file), path.join(projectName, file));
     }
-  } else {
-    shell.mkdir("src/router");
-    shell.touch("src/router/CustomRouter.jsx");
-  }
-};
+  });
+}
+
 const installAxiosPkg = async (typePackage: string) => {
   shell.echo(`Installing ${chalk.blue("axios")}`);
   const installAxios = runCommand(`${typePackage} axios`);
@@ -344,6 +307,27 @@ export default store;`;
       runCommand(`cat > src/redux/action/config/store.${typeOFScript}x << "EOF"
       ${typeOFScript === "js" ? sagaStoreJSXCode : sagaStoreTSXCode}`);
     if (!writeStoreFile) process.exit(-1);
+  }
+};
+const installRouterPkg = async (typePackage: string, typeOFScript: string) => {
+  shell.echo(
+    `Installing ${chalk.blue(
+      "react-router"
+    )} and creating router files inside src/ folder`
+  );
+  const installRouter = runCommand(`${typePackage} react-router-dom`);
+  if (!installRouter) process.exit(-1);
+  if (os.type() === "Windows_NT") {
+    try {
+      fs.mkdirSync("src/router", { recursive: true });
+      fs.writeFileSync(`src/router/CustomRouter.${typeOFScript}`, "");
+    } catch (error: any) {
+      console.error(`Error: ${error.message}`);
+      process.exit(-1);
+    }
+  } else {
+    shell.mkdir("src/router");
+    shell.touch(`src/router/CustomRouter.${typeOFScript}`);
   }
 };
 const installMuiCSSPkg = async (typePackage: string) => {
@@ -493,6 +477,44 @@ root.render(
   }
 };
 
+async function postProcess(options: CliOptions, packageManager: string, userRequestPackage: UserRequest, fileType: string) {
+  const isNode = fs.existsSync(path.join(options.templatePath, 'package.json'));
+  if (isNode) {
+    shell.cd(options.tartgetPath);
+    try {
+      chalk.magenta("Installing node_modules....")
+      runCommand(`${packageManager} install`);
+      let installCommand = packageManager === "npm" ? "npm install" : "yarn add"
+      if (userRequestPackage.addRouter) await installRouterPkg(installCommand, fileType);
+      if (userRequestPackage.addAxios) await installAxiosPkg(installCommand)
+      if (userRequestPackage.addRedux) {
+        await installReduxPkg(installCommand, fileType);
+        if (userRequestPackage.reduxMiddlewareType === "redux-thunk") await installReduxThunkPkg(installCommand, fileType);
+        else if (userRequestPackage.reduxMiddlewareType === "redux-saga") await installReduxSagaPkg(installCommand, fileType);
+        else return;
+      }
+      if (userRequestPackage.CSSFramework !== "None") {
+        switch (userRequestPackage.CSSFramework) {
+          case "MUI":
+            await installMuiCSSPkg(installCommand);
+            break;
+          case "Bootstrap":
+            await installBootstrapCSSPkg(installCommand, fileType);
+            break;
+          case "TailwindCSS":
+            await installTailwindCSSPkg(installCommand, fileType);
+            break;
+          default:
+            break;
+        }
+      }
+    } catch (error) {
+      forceClosed()
+    }
+  }
+  return true;
+}
+
 const showMessage = async (folderName: string, packageManger: string) => {
   shell.echo(``);
   shell.echo(
@@ -505,68 +527,35 @@ const showMessage = async (folderName: string, packageManger: string) => {
 };
 
 const generateFolder = async () => {
-  await init();
-  try {
-    let userresponse = await generateQuestionsForFolder();
-    let {
-      folderName,
-      typeOFScript,
-      packageManger,
-      addRouter,
-      addAxios,
-      addRedux,
-      reduxMiddlewareType,
-      cssFramework,
-    } = await userresponse;
-    let typePackage = packageManger === "npm" ? "npm install" : "yarn add";
-    let isFolderCreated = await createProjectDirectory(folderName);
-    if (!isFolderCreated) {
-      return;
-    }
-    let projectChoice =
-      typeOFScript === "js" ? "sample-react" : "sample-react-typescript";
-    const templatePath = `${__dirname}/templates/${projectChoice}`;
-    const isDirectoryMade = createDirectoryContents(templatePath, folderName);
-    if (isDirectoryMade) {
-      shell.cd(`${folderName}`);
-      console.log(
-        "Creating & Installing base files in:",
-        chalk.bgCyan(chalk.bold(folderName))
-      );
-      const installPackage = runCommand(
-        `${packageManger === "npm" ? "npm install" : "yarn"}`
-      );
-      if (!installPackage) process.exit(-1);
-      if (addRouter) await installRouterPkg(typePackage);
-      if (addAxios) await installAxiosPkg(typePackage);
-      if (addRedux) {
-        await installReduxPkg(typePackage, typeOFScript);
-        if (reduxMiddlewareType === "redux-thunk")
-          await installReduxThunkPkg(typePackage, typeOFScript);
-        else if (reduxMiddlewareType === "redux-saga")
-          await installReduxSagaPkg(typePackage, typeOFScript);
-        else return;
-      }
-      if (cssFramework !== "None")
-        switch (cssFramework) {
-          case "MUI":
-            await installMuiCSSPkg(typePackage);
-            break;
-          case "Bootstrap":
-            await installBootstrapCSSPkg(typePackage, typeOFScript);
-            break;
-          case "TailwindCSS":
-            await installTailwindCSSPkg(typePackage, typeOFScript);
-            break;
-          default:
-            break;
-        }
-      showMessage(folderName, packageManger);
-    }
-  } catch (error) {
-    forceClosed();
-    process.exit(0);
+  await init()
+  let userresponse = await generateQuestionsForFolder();
+  const projectChoice = userresponse.typeOFScript
+  const projectName = userresponse.folderName
+  const packageManager = userresponse.packageManger
+  const fileType = projectChoice === "sample-react" ? "js" : "ts";
+  //let typePackage = packageManager === "npm" ? "npm install" : "yarn add";
+  const templatePath = path.join(__dirname, 'templates', projectChoice);
+  const tartgetPath = path.join(CURR_DIR, projectName);
+  const options: CliOptions = {
+    projectName,
+    templateName: projectChoice,
+    templatePath,
+    tartgetPath
   }
-};
+  if (!createProject(tartgetPath)) {
+    return;
+  }
+  const userRequestPackage = {
+    addRouter: userresponse.addRouter,
+    addAxios: userresponse.addAxios,
+    addRedux: userresponse.addRedux,
+    reduxMiddlewareType: userresponse.reduxMiddlewareType,
+    CSSFramework: userresponse.cssFramework
+  }
+  createDirectoryContents(templatePath, projectName);
+  await postProcess(options, packageManager, userRequestPackage, fileType);
+  showMessage(projectName, packageManager);
 
-export default generateFolder();
+}
+
+generateFolder()

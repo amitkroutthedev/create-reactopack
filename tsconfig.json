@@ -3,19 +3,20 @@
     "rootDir": "src",
     "outDir": "dist",
     "lib": ["es6", "dom"],
-    "sourceMap": true,
+    "sourceMap": false,
     "allowJs": true,
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
     "target": "ESNext",
-    "allowSyntheticDefaultImports":true
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "allowSyntheticDefaultImports": true
   },
 
   "include": ["./src/**/*"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "templates"
-  ]
+  "exclude": ["node_modules", "dist", "templates"]
 }

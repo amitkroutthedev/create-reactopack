@@ -45,24 +45,6 @@ Technologies used in the project:
 - ora
 - shelljs
 
-<h2>Versions</h2>
-<ul>
-<li><b>1.0.5</b>
-    <ul>
-    <li>Minified the packge</li>
-    </ul>
-  </li>
-  <li><b>1.0.2</b>
-    <ul>
-    <li>Added support for typescript</li>
-    </ul>
-  </li>
-  <li><b>1.0.1</b>
-    <ul>
-    <li>Introduced the functionality to choose different package managers.</li>
-    </ul>
-  </li>
-</ul>
 
 <h2>🛡️ License:</h2>
 
