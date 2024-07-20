@@ -8,8 +8,10 @@ import * as shell from 'shelljs';
 import { execSync } from 'child_process';
 import gradient from "gradient-string";
 import figlet from "figlet";
+import axios from 'axios';
 
-const CHOICES = fs.readdirSync(path.join(__dirname, 'templates'));
+
+const CHOICES = fs.readdirSync(path.join(__dirname, "protemplates", 'templates'));
 
 const init = async () => {
   console.log(
@@ -477,40 +479,157 @@ root.render(
   }
 };
 
+async function latestVersion(packageName: string | boolean) {
+  return axios
+    .get("https://registry.npmjs.org/" + packageName + "/latest")
+    .then((res) => {
+      return res.data.version;
+    }).catch(e => {
+      console.log(e)
+      forceClosed()
+    });
+}
+
 async function postProcess(options: CliOptions, packageManager: string, userRequestPackage: UserRequest, fileType: string) {
   const isNode = fs.existsSync(path.join(options.templatePath, 'package.json'));
+  //// console.log("isNode",isNode)
+  // console.log("userRequestPackage",userRequestPackage)
   if (isNode) {
+    const packageJsonPath = path.join(options.tartgetPath, 'package.json');
     shell.cd(options.tartgetPath);
     try {
-      chalk.magenta("Installing node_modules....")
-      runCommand(`${packageManager} install`);
-      let installCommand = packageManager === "npm" ? "npm install" : "yarn add"
-      if (userRequestPackage.addRouter) await installRouterPkg(installCommand, fileType);
-      if (userRequestPackage.addAxios) await installAxiosPkg(installCommand)
+      const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+      const packageJson = JSON.parse(packageJsonContent);
+
+      let currDependcies = { ...packageJson.dependencies }
+      let currDevDependcies = { ...packageJson.devDependencies }
+
+      console.log("Package.json content:", userRequestPackage);
+      const extratemplatePath = path.join(__dirname, "protemplates", 'file-template');
+      if (userRequestPackage.addRouter) {
+        let version = await latestVersion("react-router-dom")
+        currDependcies["react-router-dom"] = version
+      }
+      if (userRequestPackage.addAxios) {
+        let version = await latestVersion("axios")
+        currDependcies['axios'] = version
+      }
       if (userRequestPackage.addRedux) {
-        await installReduxPkg(installCommand, fileType);
-        if (userRequestPackage.reduxMiddlewareType === "redux-thunk") await installReduxThunkPkg(installCommand, fileType);
-        else if (userRequestPackage.reduxMiddlewareType === "redux-saga") await installReduxSagaPkg(installCommand, fileType);
-        else return;
+        let reduxversion = await latestVersion("redux")
+        let reactreduxversion = await latestVersion("react-redux")
+        let reacttoolkitversion = await latestVersion("@reduxjs/toolkit")
+
+        currDependcies["redux"] = reduxversion
+        currDependcies["react-redux"] = reactreduxversion
+        currDevDependcies["@reduxjs/toolkit"] = reacttoolkitversion
+
+        fs.mkdirSync("src/redux/", { recursive: true });
+        fs.mkdirSync("src/redux/action", { recursive: true });
+        fs.mkdirSync("src/redux/action/config", { recursive: true });
+       fs.writeFileSync(`src/redux/action/config/store.jsx`, "");
+
+        if (userRequestPackage.reduxMiddlewareType === "redux-thunk") {
+          let reduxmiddlewareversion = await latestVersion("redux-thunk")
+          currDependcies["redux-thunk"] = reduxmiddlewareversion
+
+          const writereduxPath = path.join(extratemplatePath, "tempredux.js");
+          const reduxContent = fs.readFileSync(writereduxPath, "utf-8");
+          fs.writeFileSync(`src/redux/action/config/store.jsx`, reduxContent, "utf-8");
+
+        }
+        if (userRequestPackage.reduxMiddlewareType === "redux-saga") {
+          let reduxmiddlewareversion = await latestVersion("redux-saga")
+          currDependcies["redux-saga"] = reduxmiddlewareversion
+        }
       }
       if (userRequestPackage.CSSFramework !== "None") {
         switch (userRequestPackage.CSSFramework) {
           case "MUI":
-            await installMuiCSSPkg(installCommand);
+            let muiversion = await latestVersion("@mui/material")
+            let emotionreactversion = await latestVersion("@emotion/react")
+            let emotionstyledversion = await latestVersion("@emotion/styled")
+            let postcssversion = await latestVersion("postcss-loader")
+
+            currDependcies["@mui/material"] = muiversion;
+            currDependcies["@emotion/react"] = emotionreactversion;
+            currDependcies["@emotion/styled"] = emotionstyledversion;
+            currDependcies["postcss-loader"] = postcssversion;
+
             break;
+
           case "Bootstrap":
-            await installBootstrapCSSPkg(installCommand, fileType);
+            let boostrapversion = await latestVersion("bootstrap")
+            let reactbootstrapversion = await latestVersion("react-bootstrap")
+            let postcssloaderversion = await latestVersion("postcss-loader")
+            let precssversion = await latestVersion("precss")
+            let autoprefixerversion = await latestVersion("autoprefixer")
+            let sassloaderversion = await latestVersion("sass-loader")
+
+            currDependcies["react-bootstrap"] = reactbootstrapversion
+            currDependcies["bootstrap"] = boostrapversion
+            currDependcies["postcss-loader"] = postcssloaderversion
+            currDependcies["precss"] = precssversion
+            currDependcies["autoprefixer"] = autoprefixerversion
+            currDependcies["sass-loader"] = sassloaderversion
+
             break;
+
           case "TailwindCSS":
-            await installTailwindCSSPkg(installCommand, fileType);
+            // `${typePackage} -D postcss-preset-env tailwindcss autoprefixer && ${typePackage} postcss-loader`
+            let postcssenvversion = await latestVersion("postcss-preset-env")
+            let tailwindcssversion = await latestVersion("tailwindcss")
+            let autoprefixerversio = await latestVersion("autoprefixer")
+            let postcssloader = await latestVersion("postcss-loader")
+
+            currDevDependcies["postcss-preset-env"] = postcssenvversion
+            currDevDependcies["tailwindcss"] = tailwindcssversion
+            currDevDependcies["autoprefixer"] = autoprefixerversio
+            currDevDependcies["postcss-loader"] = postcssloader
+
             break;
           default:
             break;
         }
       }
-    } catch (error) {
-      forceClosed()
+      // console.log("packageJson", currDependcies);
+      // console.log("packageJson", currDevDependcies);
+
+      packageJson.dependencies = currDependcies;
+      packageJson.devDependencies = currDevDependcies
+
+      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8');
+
+    } catch (err) {
+      console.error('Error reading or parsing package.json:', err);
     }
+    //   runCommand(`${packageManager} install`);
+    //   let installCommand = packageManager === "npm" ? "npm install" : "yarn add"
+    //   if (userRequestPackage.addRouter) await installRouterPkg(installCommand, fileType);
+    //   if (userRequestPackage.addAxios) await installAxiosPkg(installCommand)
+    //   if (userRequestPackage.addRedux) {
+    //     await installReduxPkg(installCommand, fileType);
+    //     if (userRequestPackage.reduxMiddlewareType === "redux-thunk") await installReduxThunkPkg(installCommand, fileType);
+    //     else if (userRequestPackage.reduxMiddlewareType === "redux-saga") await installReduxSagaPkg(installCommand, fileType);
+    //     else return;
+    //   }
+    //   if (userRequestPackage.CSSFramework !== "None") {
+    //     switch (userRequestPackage.CSSFramework) {
+    //       case "MUI":
+    //         await installMuiCSSPkg(installCommand);
+    //         break;
+    //       case "Bootstrap":
+    //         await installBootstrapCSSPkg(installCommand, fileType);
+    //         break;
+    //       case "TailwindCSS":
+    //         await installTailwindCSSPkg(installCommand, fileType);
+    //         break;
+    //       default:
+    //         break;
+    //     }
+    //   }
+    // } catch (error) {
+    //   forceClosed()
+    // }
   }
   return true;
 }
@@ -534,7 +653,7 @@ const generateFolder = async () => {
   const packageManager = userresponse.packageManger
   const fileType = projectChoice === "sample-react" ? "js" : "ts";
   //let typePackage = packageManager === "npm" ? "npm install" : "yarn add";
-  const templatePath = path.join(__dirname, 'templates', projectChoice);
+  const templatePath = path.join(__dirname, "protemplates", 'templates', projectChoice);
   const tartgetPath = path.join(CURR_DIR, projectName);
   const options: CliOptions = {
     projectName,

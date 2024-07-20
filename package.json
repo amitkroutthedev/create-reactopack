@@ -1,25 +1,15 @@
 {
   "name": "create-rp-app",
-  "version": "1.1.2",
-  "type": "module",
+  "version": "1.1.93",
   "description": "It's a npx command tool to create a react project with the help of webpack and give choices to user to add important packages and popular css frameworks.",
-  "license": "MIT",
   "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsup && shx rm -rf dist/protemplates && shx cp -r protemplates dist",
+    "start": "node ./dist/index.js"
+  },
   "bin": {
     "create-rp-app": "./dist/index.js"
   },
-  "scripts": {
-    "build": "tsup && shx rm -rf dist/templates && shx cp -r templates dist",
-    "start": "node ./dist/index.js"
-  },
-  "files": [
-    "packages",
-    ".gitignore",
-    "LICENSE",
-    "package-lock.json",
-    "package.json",
-    "README.md"
-  ],
   "keywords": [
     "axios",
     "redux",
@@ -33,28 +23,40 @@
     "tailwindcss",
     "bootstrap"
   ],
+  "files": [
+    ".gitignore",
+    "LICENSE",
+    "package-lock.json",
+    "package.json",
+    "README.md",
+    "dist"
+  ],
   "author": "amitkrout",
   "bugs": {
     "url": "https://github.com/amitkroutthedev/create-rp-app/issues"
   },
   "homepage": "https://github.com/amitkroutthedev/create-rp-app#readme",
+  "license": "MIT",
   "dependencies": {
     "@inquirer/prompts": "^4.3.2",
-    "chalk": "5.3.0",
+    "axios": "^1.7.2",
     "ejs": "3.1.9",
-    "figlet": "1.7.0",
-    "gradient-string": "2.0.2",
+    "figlet": "^1.7.0",
+    "gradient-string": "^2.0.2",
     "inquirer": "9.2.17",
+    "npm": "^10.8.1",
     "shelljs": "0.8.5",
     "typescript": "^5.4.4"
   },
   "devDependencies": {
+    "@types/ejs": "^3.1.5",
     "@types/figlet": "^1.5.8",
-    "@types/gradient-string": "^1.1.5",
+    "@types/gradient-string": "^1.1.6",
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.12.4",
+    "@types/npm": "^7.19.3",
     "@types/shelljs": "^0.8.15",
-    "shx": "0.3.4",
-    "tsup": "8.0.2"
+    "shx": "^0.3.4",
+    "tsup": "^8.0.2"
   }
 }
