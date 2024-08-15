@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 import * as fs from 'fs';
-import * as os from "os";
 import * as path from 'path';
 import { input, select, confirm } from "@inquirer/prompts";
-import chalk from 'chalk';
 import * as shell from 'shelljs';
 import { execSync } from 'child_process';
 import gradient from "gradient-string";
 import figlet from "figlet";
 import axios from 'axios';
-
+import pc from "picocolors"
+import ora from "ora-classic"
 
 const CHOICES = fs.readdirSync(path.join(__dirname, "protemplates", 'templates'));
 
@@ -23,7 +22,7 @@ const init = async () => {
       })
     )
   );
-  console.log(chalk.bold(chalk.magenta(">>>>>>  Welcome to REACTOPACK")));
+  console.log(pc.bold(pc.magenta(">>>>>>  Welcome to REACTOPACK")));
 };
 
 interface UserRequest {
@@ -53,7 +52,7 @@ const runCommand = (command: string) => {
 };
 
 const forceClosed = () => {
-  shell.echo(chalk.bold(chalk.redBright("Forced Closed")));
+  shell.echo(pc.bold(pc.red("Forced Closed")));
 };
 
 const generateQuestionsForFolder = async () => {
@@ -169,7 +168,7 @@ const generateQuestionsForFolder = async () => {
 
 function createProject(projectPath: string) {
   if (fs.existsSync(projectPath)) {
-    console.log(chalk.red(`Folder ${projectPath} exists. Delete or use another name.`));
+    console.log(pc.red(`Folder ${projectPath} exists. Delete or use another name.`));
     return false;
   }
   fs.mkdirSync(projectPath);
@@ -206,7 +205,7 @@ function createDirectoryContents(templatePath: string, projectName: string) {
   });
 }
 
-const installAxiosPkg = async (typePackage: string) => {
+/*const installAxiosPkg = async (typePackage: string) => {
   shell.echo(`Installing ${chalk.blue("axios")}`);
   const installAxios = runCommand(`${typePackage} axios`);
   if (!installAxios) process.exit(-1);
@@ -386,98 +385,8 @@ root.render(
   ${typeOFScript === "js" ? bootstrapIndexCodejsx : bootstrapIndexCodetsx}`);
     if (!writeBootstrapConfig) process.exit(-1);
   }
-};
-const installTailwindCSSPkg = async (
-  typePackage: string,
-  typeOFScript: string
-) => {
-  shell.echo(`Installing and Configuring ${chalk.blue("TailwindCSS")}`);
-  const installTailwind = runCommand(
-    `${typePackage} -D postcss-preset-env tailwindcss autoprefixer && ${typePackage} postcss-loader`
-  );
-  if (!installTailwind) process.exit(-1);
-  const tailwindConfig = `
-  /** @type {import('tailwindcss').Config} */
-  module.exports = {
-  content: [
-  "./src/**/*.{js,jsx,ts,tsx}",
-  ],
-  theme: {
-  extend: {},
-  },
-  plugins: [],
-  }
-  `;
-  const postCssConfig = `
-  const tailwindcss = require('tailwindcss');
-  const autoprefixer = require('autoprefixer');
-          
-  module.exports = {
-  plugins: [tailwindcss('./tailwind.config.cjs'), autoprefixer],
-  };
-  `;
-  const indexCSS = `
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
-  `;
-  const indexJSXContent = `
-  import React from "react";
-  import { createRoot } from "react-dom/client";
-  import App from "./App";
-  import "./index.css";
-  
-  const rootElement = document.getElementById("root");
-  const root = createRoot(rootElement);
-  root.render(
-  <React.StrictMode>
-  <App />
-  </React.StrictMode>
-  );
-  `;
-  const indexTSXContent = `
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import App from "./App";
-import "./index.css";
+};*/
 
-const rootElement = document.getElementById("root");
-
-const root = createRoot(rootElement);
-
-root.render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
-
-  `;
-  if (os.type() === "Windows_NT") {
-    fs.writeFileSync("tailwind.config.cjs", tailwindConfig);
-    fs.writeFileSync("postcss.config.cjs", tailwindConfig);
-    fs.writeFileSync(
-      `src/index.${typeOFScript}x`,
-      typeOFScript === "js" ? indexJSXContent : indexTSXContent
-    );
-    fs.writeFileSync("src/index.css", indexCSS);
-  } else {
-    shell.touch("tailwind.config.cjs");
-    let writeTailwindConfig = runCommand(`cat > tailwind.config.cjs << "EOF"
-  ${tailwindConfig}`);
-    if (!writeTailwindConfig) process.exit(-1);
-    shell.touch("postcss.config.cjs");
-    let writePostCSSConfig = runCommand(`cat > postcss.config.cjs << "EOF"
-  ${postCssConfig}`);
-    if (!writePostCSSConfig) process.exit(-1);
-    shell.touch("src/index.css");
-    let writeglobalTailwindCss = runCommand(`cat > src/index.css << "EOF"
-  ${indexCSS}`);
-    if (!writeglobalTailwindCss) process.exit(-1);
-    let changedIndexjs = runCommand(`cat > src/index.${typeOFScript}x << "EOF"
-    ${typeOFScript === "js" ? indexJSXContent : indexTSXContent}`);
-    if (!changedIndexjs) process.exit(-1);
-  }
-};
 
 async function latestVersion(packageName: string | boolean) {
   return axios
@@ -490,13 +399,23 @@ async function latestVersion(packageName: string | boolean) {
     });
 }
 
+const createNewFolder = (targetPath: string, folderPath: string) => {
+  const fullPath = path.join(targetPath, folderPath)
+  fs.mkdirSync(fullPath, { recursive: true })
+}
+const createFileInFolder = (folderPath: string, fileName: string, content: string) => {
+  const filePath = path.join(folderPath, fileName)
+  fs.writeFileSync(filePath, content)
+}
+
 async function postProcess(options: CliOptions, packageManager: string, userRequestPackage: UserRequest, fileType: string) {
   const isNode = fs.existsSync(path.join(options.templatePath, 'package.json'));
-  //// console.log("isNode",isNode)
-  // console.log("userRequestPackage",userRequestPackage)
+  const loadder = ora('Getting pakages...').start();
+  //spinner.spinner = cliSpinners.clock
   if (isNode) {
     const packageJsonPath = path.join(options.tartgetPath, 'package.json');
     shell.cd(options.tartgetPath);
+
     try {
       const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
       const packageJson = JSON.parse(packageJsonContent);
@@ -504,17 +423,21 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
       let currDependcies = { ...packageJson.dependencies }
       let currDevDependcies = { ...packageJson.devDependencies }
 
-      console.log("Package.json content:", userRequestPackage);
+      const targetPath = options.tartgetPath
+
       const extratemplatePath = path.join(__dirname, "protemplates", 'file-template');
       if (userRequestPackage.addRouter) {
+        loadder.text = "Getting pakages...react-router-dom"
         let version = await latestVersion("react-router-dom")
         currDependcies["react-router-dom"] = version
       }
       if (userRequestPackage.addAxios) {
+        loadder.text = "Getting pakages...axios"
         let version = await latestVersion("axios")
         currDependcies['axios'] = version
       }
       if (userRequestPackage.addRedux) {
+        loadder.text = "Getting pakages...readux and react-redux"
         let reduxversion = await latestVersion("redux")
         let reactreduxversion = await latestVersion("react-redux")
         let reacttoolkitversion = await latestVersion("@reduxjs/toolkit")
@@ -523,28 +446,34 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
         currDependcies["react-redux"] = reactreduxversion
         currDevDependcies["@reduxjs/toolkit"] = reacttoolkitversion
 
-        fs.mkdirSync("src/redux/", { recursive: true });
-        fs.mkdirSync("src/redux/action", { recursive: true });
-        fs.mkdirSync("src/redux/action/config", { recursive: true });
-       fs.writeFileSync(`src/redux/action/config/store.jsx`, "");
+        createNewFolder(targetPath, 'src/redux/action/config')
+        createFileInFolder(path.join(targetPath, 'src/redux/action/config'), `store.${fileType}x`, "")
 
         if (userRequestPackage.reduxMiddlewareType === "redux-thunk") {
+          loadder.text = "Getting pakages...redux-thunk"
           let reduxmiddlewareversion = await latestVersion("redux-thunk")
           currDependcies["redux-thunk"] = reduxmiddlewareversion
 
-          const writereduxPath = path.join(extratemplatePath, "tempredux.js");
-          const reduxContent = fs.readFileSync(writereduxPath, "utf-8");
-          fs.writeFileSync(`src/redux/action/config/store.jsx`, reduxContent, "utf-8");
+          let writereduxPath = path.join(extratemplatePath, "redux-thunk", `thunk.${fileType}`);
+          let reduxContent = fs.readFileSync(writereduxPath, "utf-8");
+          fs.writeFileSync(`src/redux/action/config/store.${fileType}x`, reduxContent, "utf-8");
 
         }
         if (userRequestPackage.reduxMiddlewareType === "redux-saga") {
+          loadder.text = "Getting pakages...redux-saga"
           let reduxmiddlewareversion = await latestVersion("redux-saga")
           currDependcies["redux-saga"] = reduxmiddlewareversion
+
+          let writereduxSagaPath = path.join(extratemplatePath, userRequestPackage.reduxMiddlewareType, `saga.${fileType}`)
+          let reduxContent = fs.readFileSync(writereduxSagaPath, "utf-8");
+          fs.writeFileSync(`src/redux/action/config/store.${fileType}x`, reduxContent, "utf-8");
+
         }
       }
       if (userRequestPackage.CSSFramework !== "None") {
         switch (userRequestPackage.CSSFramework) {
           case "MUI":
+            loadder.text = "Getting pakages...MUI"
             let muiversion = await latestVersion("@mui/material")
             let emotionreactversion = await latestVersion("@emotion/react")
             let emotionstyledversion = await latestVersion("@emotion/styled")
@@ -558,6 +487,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
             break;
 
           case "Bootstrap":
+            loadder.text = "Getting pakages...Bootstrap"
             let boostrapversion = await latestVersion("bootstrap")
             let reactbootstrapversion = await latestVersion("react-bootstrap")
             let postcssloaderversion = await latestVersion("postcss-loader")
@@ -572,9 +502,15 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
             currDependcies["autoprefixer"] = autoprefixerversion
             currDependcies["sass-loader"] = sassloaderversion
 
+            let bootstrapRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `bootstrap.${fileType}`);
+            let bootstrapContent = fs.readFileSync(bootstrapRoute, "utf-8");
+            fs.writeFileSync(`src/index.${fileType}x`, bootstrapContent);
+
+
             break;
 
           case "TailwindCSS":
+            loadder.text = "Getting pakages...TailwindCSS"
             // `${typePackage} -D postcss-preset-env tailwindcss autoprefixer && ${typePackage} postcss-loader`
             let postcssenvversion = await latestVersion("postcss-preset-env")
             let tailwindcssversion = await latestVersion("tailwindcss")
@@ -586,63 +522,47 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
             currDevDependcies["autoprefixer"] = autoprefixerversio
             currDevDependcies["postcss-loader"] = postcssloader
 
+            createFileInFolder(targetPath, `postcss.config.cjs`, "")
+            createFileInFolder(targetPath, `tailwind.config.cjs`, "")
+
+            let postcssRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `postcss.config.cjs`);
+            let postcssContent = fs.readFileSync(postcssRoute, "utf-8");
+            fs.writeFileSync(`postcss.config.cjs`, postcssContent);
+
+            let tailwindRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `tailwind.config.cjs`);
+            let tailwindContent = fs.readFileSync(tailwindRoute, "utf-8");
+            fs.writeFileSync(`tailwind.config.cjs`, tailwindContent);
+
+            let indexcssRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `index.css`);
+            let indexcssContent = fs.readFileSync(indexcssRoute, "utf-8");
+            fs.writeFileSync(`src/index.css`, indexcssContent);
+
+
             break;
           default:
             break;
         }
       }
-      // console.log("packageJson", currDependcies);
-      // console.log("packageJson", currDevDependcies);
 
       packageJson.dependencies = currDependcies;
       packageJson.devDependencies = currDevDependcies
 
       fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8');
-
+      loadder.stop()
     } catch (err) {
       console.error('Error reading or parsing package.json:', err);
     }
-    //   runCommand(`${packageManager} install`);
-    //   let installCommand = packageManager === "npm" ? "npm install" : "yarn add"
-    //   if (userRequestPackage.addRouter) await installRouterPkg(installCommand, fileType);
-    //   if (userRequestPackage.addAxios) await installAxiosPkg(installCommand)
-    //   if (userRequestPackage.addRedux) {
-    //     await installReduxPkg(installCommand, fileType);
-    //     if (userRequestPackage.reduxMiddlewareType === "redux-thunk") await installReduxThunkPkg(installCommand, fileType);
-    //     else if (userRequestPackage.reduxMiddlewareType === "redux-saga") await installReduxSagaPkg(installCommand, fileType);
-    //     else return;
-    //   }
-    //   if (userRequestPackage.CSSFramework !== "None") {
-    //     switch (userRequestPackage.CSSFramework) {
-    //       case "MUI":
-    //         await installMuiCSSPkg(installCommand);
-    //         break;
-    //       case "Bootstrap":
-    //         await installBootstrapCSSPkg(installCommand, fileType);
-    //         break;
-    //       case "TailwindCSS":
-    //         await installTailwindCSSPkg(installCommand, fileType);
-    //         break;
-    //       default:
-    //         break;
-    //     }
-    //   }
-    // } catch (error) {
-    //   forceClosed()
-    // }
   }
   return true;
 }
 
 const showMessage = async (folderName: string, packageManger: string) => {
-  shell.echo(``);
-  shell.echo(
-    `${chalk.greenBright(chalk.bold(folderName) + " successfully created")}`
-  );
-  shell.echo(`To run the project:`);
-  shell.echo(`    ${chalk.blue("cd " + chalk.bold(folderName))}`);
-  shell.echo(`    ${chalk.blue(`${packageManger} run dev`)}`);
-  shell.echo(`${chalk.red(chalk.bold("Happy Coding!!!"))}`);
+  console.log("")
+  console.log(`${pc.green(pc.bold(folderName) + " successfully created")}`)
+  console.log(`${pc.italic(pc.underline("To run the project"))}`)
+  console.log(`           ${pc.blue("cd " + pc.bold(folderName))}`)
+  console.log(`           ${pc.blue(`${packageManger} run dev`)}`)
+  console.log(`${pc.red(pc.bold("Happy Coding!!!"))}`)
 };
 
 const generateFolder = async () => {

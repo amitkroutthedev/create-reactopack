@@ -3,5 +3,5 @@ import thunk from 'redux-thunk'
   
 const store = configureStore({
     reducer: {},
-    middleware: [thunk]
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({thunk:true})
 })
