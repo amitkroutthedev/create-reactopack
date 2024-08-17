@@ -561,6 +561,7 @@ const showMessage = async (folderName: string, packageManger: string) => {
   console.log(`${pc.green(pc.bold(folderName) + " successfully created")}`)
   console.log(`${pc.italic(pc.underline("To run the project"))}`)
   console.log(`           ${pc.blue("cd " + pc.bold(folderName))}`)
+  console.log(`           ${pc.blue(`${packageManger} install`)}`)
   console.log(`           ${pc.blue(`${packageManger} run dev`)}`)
   console.log(`${pc.red(pc.bold("Happy Coding!!!"))}`)
 };
