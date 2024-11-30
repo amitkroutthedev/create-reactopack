@@ -41,7 +41,7 @@ interface CliOptions {
 const CURR_DIR = process.cwd();
 
 
-const runCommand = (command: string) => {
+/*const runCommand = (command: string) => {
   try {
     execSync(`${command}`, { stdio: "inherit" });
   } catch (error) {
@@ -50,7 +50,7 @@ const runCommand = (command: string) => {
   }
   return true;
 };
-
+*/
 const forceClosed = () => {
   shell.echo(pc.bold(pc.red("Forced Closed")));
 };
@@ -175,8 +175,11 @@ function createProject(projectPath: string) {
 
   return true;
 }
+
 // list of file/folder that should not be copied
+
 const SKIP_FILES = ['node_modules', '.template.json'];
+
 function createDirectoryContents(templatePath: string, projectName: string) {
   // read all files/folders (1 level) from template folder
   const filesToCreate = fs.readdirSync(templatePath);
@@ -204,189 +207,6 @@ function createDirectoryContents(templatePath: string, projectName: string) {
     }
   });
 }
-
-/*const installAxiosPkg = async (typePackage: string) => {
-  shell.echo(`Installing ${chalk.blue("axios")}`);
-  const installAxios = runCommand(`${typePackage} axios`);
-  if (!installAxios) process.exit(-1);
-};
-const installReduxPkg = async (typePackage: string, typeOFScript: string) => {
-  shell.echo(`Installing ${chalk.blue("redux")}`);
-  const installRedux = runCommand(
-    `${typePackage} redux @reduxjs/toolkit && ${typePackage} -D react-redux`
-  );
-  if (!installRedux) process.exit(-1);
-  if (os.type() === "Windows_NT") {
-    fs.mkdirSync("src/redux/", { recursive: true });
-    fs.mkdirSync("src/redux/action", { recursive: true });
-    fs.mkdirSync("src/redux/action/config", { recursive: true });
-    fs.writeFileSync(`src/redux/action/config/store.${typeOFScript}x`, "");
-  } else {
-    shell.echo("Setting redux folders and files");
-    shell.mkdir("src/redux/");
-    shell.mkdir("src/redux/action");
-    shell.mkdir("src/redux/action/config");
-    shell.touch(`src/redux/action/config/store.${typeOFScript}x`);
-  }
-};
-const installReduxThunkPkg = async (
-  typePackage: string,
-  typeOFScript: string
-) => {
-  shell.echo(`Installing and Setting ${chalk.blue("redux-thunk")}`);
-  const installReduxThunk = runCommand(`${typePackage} redux-thunk`);
-  if (!installReduxThunk) process.exit(-1);
-  const thunkStoreJSXCode = `
-import { configureStore } from '@reduxjs/toolkit'
-import thunk from 'redux-thunk'
-  
-const store = configureStore({
-    reducer: {},
-    middleware: [thunk]
-})
-  
-export default store`;
-  const thunkStoreTSXCode = `
-import { configureStore } from '@reduxjs/toolkit'
-import thunk from 'redux-thunk'
-  
-const store = configureStore({
-    reducer: {},
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware({thunk:true})
-})
-  
-export default store`;
-  if (os.type() === "Windows_NT") {
-    fs.writeFileSync(
-      `src/redux/action/config/store.${typeOFScript}x`,
-      typeOFScript === "js" ? thunkStoreJSXCode : thunkStoreTSXCode
-    );
-  } else {
-    let writeStoreFile =
-      runCommand(`cat > src/redux/action/config/store.${typeOFScript}x << "EOF"
-      ${typeOFScript === "js" ? thunkStoreJSXCode : thunkStoreTSXCode}`);
-    if (!writeStoreFile) process.exit(-1);
-  }
-};
-const installReduxSagaPkg = async (
-  typePackage: string,
-  typeOFScript: string
-) => {
-  shell.echo(`Installing and Setting ${chalk.blue("redux-saga")}`);
-  const installReduxSaga = runCommand(`${typePackage} redux-saga`);
-  if (!installReduxSaga) process.exit(-1);
-  const sagaStoreJSXCode = `
-import { configureStore } from '@reduxjs/toolkit'
-import createSagaMiddleware from 'redux-saga'
-  
-const sagaMiddleware = createSagaMiddleware()
-const saga = [sagaMiddleware]
-  
-const store = configureStore({
-      reducer: {},
-      middleware: [saga]
-})
-export default store`;
-  const sagaStoreTSXCode = `
-import { configureStore } from '@reduxjs/toolkit'
-import createSagaMiddleware from 'redux-saga'
-  
-const sagaMiddleware = createSagaMiddleware()
-  
-const store = configureStore({
-      reducer: {},
-      middleware: (gDM) => gDM().concat(sagaMiddleware)
-})
-export default store;`;
-  if (os.type() === "Windows_NT") {
-    fs.writeFileSync(
-      `src/redux/action/config/store.${typeOFScript}x`,
-      typeOFScript === "js" ? sagaStoreJSXCode : sagaStoreTSXCode
-    );
-  } else {
-    let writeStoreFile =
-      runCommand(`cat > src/redux/action/config/store.${typeOFScript}x << "EOF"
-      ${typeOFScript === "js" ? sagaStoreJSXCode : sagaStoreTSXCode}`);
-    if (!writeStoreFile) process.exit(-1);
-  }
-};
-const installRouterPkg = async (typePackage: string, typeOFScript: string) => {
-  shell.echo(
-    `Installing ${chalk.blue(
-      "react-router"
-    )} and creating router files inside src/ folder`
-  );
-  const installRouter = runCommand(`${typePackage} react-router-dom`);
-  if (!installRouter) process.exit(-1);
-  if (os.type() === "Windows_NT") {
-    try {
-      fs.mkdirSync("src/router", { recursive: true });
-      fs.writeFileSync(`src/router/CustomRouter.${typeOFScript}`, "");
-    } catch (error: any) {
-      console.error(`Error: ${error.message}`);
-      process.exit(-1);
-    }
-  } else {
-    shell.mkdir("src/router");
-    shell.touch(`src/router/CustomRouter.${typeOFScript}`);
-  }
-};
-const installMuiCSSPkg = async (typePackage: string) => {
-  shell.echo(`Installing ${chalk.blue("MUI")}`);
-  const installMui = runCommand(
-    `${typePackage} @mui/material @emotion/react @emotion/styled && ${typePackage} postcss-loader`
-  );
-  if (!installMui) process.exit(-1);
-};
-const installBootstrapCSSPkg = async (
-  typePackage: string,
-  typeOFScript: string
-) => {
-  shell.echo(`Installing ${chalk.blue("Bootstrap")}`);
-  const installBootstrap = runCommand(
-    `${typePackage} react-bootstrap bootstrap postcss-loader precss autoprefixer sass-loader --save`
-  );
-  if (!installBootstrap) process.exit(-1);
-  const bootstrapIndexCodejsx = `import React from "react";
-  import { createRoot } from "react-dom/client";
-  import App from "./App";
-  import 'bootstrap/dist/css/bootstrap.min.css';
-  
-  const rootElement = document.getElementById("root");
-  const root = createRoot(rootElement);
-  root.render(
-   <React.StrictMode>
-      <App />
-   </React.StrictMode>
-  );`;
-  const bootstrapIndexCodetsx = `import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import App from "./App";
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-const rootElement = document.getElementById("root");
-
-const root = createRoot(rootElement!);
-
-root.render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
-  `;
-  if (os.type() === "Windows_NT") {
-    fs.writeFileSync(
-      `src/index.${typeOFScript}x`,
-      typeOFScript === "js" ? bootstrapIndexCodejsx : bootstrapIndexCodetsx
-    );
-  } else {
-    let writeBootstrapConfig =
-      runCommand(`cat > src/index.${typeOFScript}x << "EOF"
-  ${typeOFScript === "js" ? bootstrapIndexCodejsx : bootstrapIndexCodetsx}`);
-    if (!writeBootstrapConfig) process.exit(-1);
-  }
-};*/
-
 
 async function latestVersion(packageName: string | boolean) {
   return axios
@@ -561,9 +381,12 @@ const showMessage = async (folderName: string, packageManger: string) => {
   console.log(`${pc.green(pc.bold(folderName) + " successfully created")}`)
   console.log(`${pc.italic(pc.underline("To run the project"))}`)
   console.log(`           ${pc.blue("cd " + pc.bold(folderName))}`)
-  console.log(`           ${pc.blue(`${packageManger} install`)}`)
-  console.log(`           ${pc.blue(`${packageManger} run dev`)}`)
+  if(packageManger==="yarn") console.log(`           ${pc.blue(`${packageManger}`)}`)
+  else console.log(`           ${pc.blue(`${packageManger} install`)}`)
+  if(packageManger==="yarn") console.log(`           ${pc.blue(`${packageManger} dev`)}`)
+  else console.log(`           ${pc.blue(`${packageManger} run dev`)}`)
   console.log(`${pc.red(pc.bold("Happy Coding!!!"))}`)
+  console.log(`${pc.bold("Give a star⭐ to repo")} - https://github.com/amitkroutthedev/create-reactopack`)
 };
 
 const generateFolder = async () => {

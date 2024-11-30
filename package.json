@@ -1,6 +1,6 @@
 {
   "name": "create-rp-app",
-  "version": "1.1.94",
+  "version": "1.1.96",
   "description": "It's a npx command tool to create a react project with the help of webpack and give choices to user to add important packages and popular css frameworks.",
   "main": "./dist/index.js",
   "scripts": {

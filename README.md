@@ -12,7 +12,7 @@
 Install
 </h2>
 <code>
-$npx create-react-app
+$npx create-rp-app
 </code>
 
 
