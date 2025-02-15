@@ -1,6 +1,6 @@
 {
   "name": "create-rp-app",
-  "version": "1.1.96",
+  "version": "1.2.0",
   "description": "It's a npx command tool to create a react project with the help of webpack and give choices to user to add important packages and popular css frameworks.",
   "main": "./dist/index.js",
   "scripts": {
@@ -38,26 +38,23 @@
   "homepage": "https://github.com/amitkroutthedev/create-reactopack#readme",
   "license": "MIT",
   "dependencies": {
-    "@inquirer/prompts": "5.3.8",
-    "axios": "1.7.3",
-    "cli-spinners": "^3.1.0",
-    "figlet": "1.7.0",
-    "gradient-string": "2.0.2",
-    "inquirer": "10.1.8",
-    "latest": "^0.2.0",
-    "npm": "^10.8.2",
+    "@clack/prompts": "^0.9.1",
+    "axios": "1.7.9",
+    "figlet": "1.8.0",
+    "gradient-string": "3.0.0",
+    "inquirer": "12.3.2",
+    "npm": "11.0.0",
     "ora-classic": "^5.4.2",
-    "picocolors": "^1.0.1",
+    "picocolors": "^1.1.1",
     "shelljs": "0.8.5",
-    "typescript": "^5.5.4"
+    "typescript": "^5.7.3"
   },
   "devDependencies": {
-    "@types/figlet": "^1.5.8",
+    "@types/figlet": "^1.7.0",
     "@types/gradient-string": "^1.1.6",
-    "@types/inquirer": "^9.0.7",
-    "@types/node": "^20.14.15",
+    "@types/node": "22.10.6",
     "@types/shelljs": "^0.8.15",
     "shx": "^0.3.4",
-    "tsup": "^8.0.2"
+    "tsup": "^8.3.5"
   }
 }

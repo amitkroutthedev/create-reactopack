@@ -6,6 +6,7 @@ export default defineConfig({
   dts: false, // Generate declaration file (.d.ts)
   splitting: false,
   sourcemap: false,
-  clean: true,
-  minify:false
+  clean: false,
+  minify:false,
+  
 });

@@ -1,170 +1,129 @@
 #!/usr/bin/env node
 import * as fs from 'fs';
 import * as path from 'path';
-import { input, select, confirm } from "@inquirer/prompts";
 import * as shell from 'shelljs';
-import { execSync } from 'child_process';
-import gradient from "gradient-string";
-import figlet from "figlet";
+// import gradient from "gradient-string";
+// import figlet from "figlet";
 import axios from 'axios';
 import pc from "picocolors"
-import ora from "ora-classic"
+import * as p from '@clack/prompts';
+import { spinner } from '@clack/prompts';
+
+import {UserRequest,CliOptions,QuestionResponse} from "./interface/interface"
 
 const CHOICES = fs.readdirSync(path.join(__dirname, "protemplates", 'templates'));
 
 const init = async () => {
-  console.log(
-    gradient(["#f72585", "#f4f1de", "#f4a261"])(
-      figlet.textSync("CREATE RP APP", {
-        font: "Ogre",
-        horizontalLayout: "default",
-        verticalLayout: "default",
-      })
-    )
-  );
+  // console.log(
+  //   gradient(["#f72585", "#f4f1de", "#f4a261"])(
+  //     figlet.textSync("CREATE RP APP", {
+  //       font: "Ogre",
+  //       horizontalLayout: "default",
+  //       verticalLayout: "default",
+  //     })
+  //   )
+  // );
   console.log(pc.bold(pc.magenta(">>>>>>  Welcome to REACTOPACK")));
 };
 
-interface UserRequest {
-  addRouter: boolean
-  addAxios: boolean
-  addRedux: boolean
-  reduxMiddlewareType: boolean | string
-  CSSFramework: string
-}
-interface CliOptions {
-  projectName: string
-  templateName: string
-  templatePath: string
-  tartgetPath: string
-}
+
 const CURR_DIR = process.cwd();
 
 
-/*const runCommand = (command: string) => {
-  try {
-    execSync(`${command}`, { stdio: "inherit" });
-  } catch (error) {
-    console.error(`Failed to execute ${command}`, error);
-    return false;
-  }
-  return true;
-};
-*/
 const forceClosed = () => {
   shell.echo(pc.bold(pc.red("Forced Closed")));
 };
 
-const generateQuestionsForFolder = async () => {
-  const folderName = await input({
-    message: "Enter your folder name: ",
-    validate: async (input: string) => {
-      if (input === "") return "Folder name cannot be empty";
-      return true;
-    },
-  }).catch((e) => {
-    forceClosed();
-    process.exit(0);
-  });
-  const typeOFScript = await select({
-    message: "Will you be using TypeScript or JavaScript?",
-    choices: [
-      {
-        name: "Javascript",
-        value: CHOICES[0],
+
+
+const generateQuestionsForFolder = async (): Promise<QuestionResponse> => {
+  const group = await p.group({
+    folderName:()=>p.text({
+      message: "Enter your folder name: ", 
+      validate(value) {
+        if (value==="") return `Value is required!`;
+        return undefined;
       },
-      {
-        name: "Typescript",
-        value: CHOICES[1],
-      },
-    ]
-  }).catch((e) => {
-    forceClosed();
-    process.exit(0);
-  });
-  const packageManger = await select({
-    message: "Select a package manager:",
-    choices: [
-      {
-        name: "npm",
-        value: "npm",
-        description: "npm is the most popular package manager",
-      },
-      {
-        name: "yarn",
-        value: "yarn",
-        description: "yarn is an awesome package manager",
-      },
-    ],
-  }).catch((e) => {
-    forceClosed();
-    process.exit(0);
-  });
-  const addRouter = await confirm({
-    message: "Do you want to add router to the project(react-router)?",
-  }).catch((e) => {
-    forceClosed();
-    process.exit(0);
-  });
-  const addAxios = await confirm({
-    message: "Do you want to add axios for API calls?",
-  }).catch((e) => {
-    forceClosed();
-    process.exit(0);
-  });
-  const addRedux = await confirm({
-    message: "Do you want to add redux?",
-  }).catch((e) => {
-    forceClosed();
-    process.exit(0);
-  });
-  const reduxMiddlewareType =
-    addRedux === true &&
-    (await select({
-      message: `Please choose the Redux's middleware the project:`,
-      choices: [
+      placeholder:"my-folder"
+    }),
+    typeOFScript:()=>p.select({
+      message: "Will you be using TypeScript or JavaScript?",
+      options: [
         {
-          name: "redux-thunk",
-          value: "redux-thunk",
+          label: "Javascript",
+          value: CHOICES[0],
         },
         {
-          name: "redux-saga",
-          value: "redux-saga",
+          label: "Typescript",
+          value: CHOICES[1],
+        }]
+    }),
+    packageManger:()=>p.select({
+      message: "Select a package manager:",
+      options: [
+        {
+          label: "npm",
+          value:"npm",
+          hint: 'npm is the most popular package manager'
         },
-      ],
-      default: "redux-thunk",
-    }).catch((e) => {
-      forceClosed();
+        {
+          label: "yarn",
+          value: "yarn",
+          hint: 'yarn is an awesome package manager'
+        }]
+    }),
+   packages: ({ results }) =>
+      p.multiselect({
+        message: `What are packages to be there?`,
+        options: [
+          { value: 'react-router', label: 'React Router' },
+          { value: 'axios', label: 'Axios' },
+          { value: 'redux', label: 'Redux' },
+        ],
+      }),
+      reduxMiddlewareType:({results}: {results: {packages: string[]}})=>results.packages.includes("redux")?p.select({
+        message: "Please choose the Redux's middleware the project:",
+        options: [
+          {
+            label: "redux-thunk",
+            value:"redux-thunk",
+          },
+          {
+            label: "redux-saga",
+            value: "redux-saga",
+          }]
+      }):undefined,
+      cssFramework:()=>p.select({
+        message: "Please choose the css framework",
+        options: [
+          {
+            label: "TailwindCSS",
+            value: "TailwindCSS",
+            hint:"Utility-first CSS framework for responsive web development."
+          },
+          {
+            label: "MUI",
+            value: "MUI",
+            hint:"Utility-first CSS framework for responsive web development."
+          },{
+            label: "Bootstrap",
+            value: "Bootstrap",
+            hint:"Front-end framework for easy, responsive website design"
+          },{
+            label: "None of the above",
+            value: "None",
+          },
+        ]
+      }),
+  }, {
+    onCancel: () => {
+      p.cancel('Operation cancelled.');
       process.exit(0);
-    }));
-  const cssFramework = await select({
-    message: "Please choose the css framework",
-    choices: [
-      {
-        name: "TailwindCSS",
-        value: "TailwindCSS",
-        description:
-          "Utility-first CSS framework for responsive web development.",
-      },
-      {
-        name: "MUI",
-        value: "MUI",
-        description:
-          "React framework with customizable Material Design components.",
-      },
-      {
-        name: "Bootstrap",
-        value: "Bootstrap",
-        description: "Front-end framework for easy, responsive website design",
-      },
-      { name: "None of the above", value: "None" },
-    ],
-  }).catch((e) => {
-    forceClosed();
-    process.exit(0);
-  });
-  return { typeOFScript, folderName, packageManger, addRouter, addAxios, addRedux, reduxMiddlewareType, cssFramework }
-};
+    },
+  }) as QuestionResponse;
+  return group
+}
+
 
 function createProject(projectPath: string) {
   if (fs.existsSync(projectPath)) {
@@ -230,7 +189,8 @@ const createFileInFolder = (folderPath: string, fileName: string, content: strin
 
 async function postProcess(options: CliOptions, packageManager: string, userRequestPackage: UserRequest, fileType: string) {
   const isNode = fs.existsSync(path.join(options.templatePath, 'package.json'));
-  const loadder = ora('Getting pakages...').start();
+  const s = spinner()
+  s.start("Getting packages.....")
   //spinner.spinner = cliSpinners.clock
   if (isNode) {
     const packageJsonPath = path.join(options.tartgetPath, 'package.json');
@@ -247,17 +207,17 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
 
       const extratemplatePath = path.join(__dirname, "protemplates", 'file-template');
       if (userRequestPackage.addRouter) {
-        loadder.text = "Getting pakages...react-router-dom"
+        s.message("Getting pakages...react-router-dom")
         let version = await latestVersion("react-router-dom")
         currDependcies["react-router-dom"] = version
       }
       if (userRequestPackage.addAxios) {
-        loadder.text = "Getting pakages...axios"
+        s.message("Getting pakages...axios")
         let version = await latestVersion("axios")
         currDependcies['axios'] = version
       }
       if (userRequestPackage.addRedux) {
-        loadder.text = "Getting pakages...readux and react-redux"
+        s.message("Getting pakages...readux and react-redux")
         let reduxversion = await latestVersion("redux")
         let reactreduxversion = await latestVersion("react-redux")
         let reacttoolkitversion = await latestVersion("@reduxjs/toolkit")
@@ -270,7 +230,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
         createFileInFolder(path.join(targetPath, 'src/redux/action/config'), `store.${fileType}x`, "")
 
         if (userRequestPackage.reduxMiddlewareType === "redux-thunk") {
-          loadder.text = "Getting pakages...redux-thunk"
+          s.message("Getting pakages...redux-thunk")
           let reduxmiddlewareversion = await latestVersion("redux-thunk")
           currDependcies["redux-thunk"] = reduxmiddlewareversion
 
@@ -280,7 +240,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
 
         }
         if (userRequestPackage.reduxMiddlewareType === "redux-saga") {
-          loadder.text = "Getting pakages...redux-saga"
+          s.message("Getting pakages...redux-saga")
           let reduxmiddlewareversion = await latestVersion("redux-saga")
           currDependcies["redux-saga"] = reduxmiddlewareversion
 
@@ -293,7 +253,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
       if (userRequestPackage.CSSFramework !== "None") {
         switch (userRequestPackage.CSSFramework) {
           case "MUI":
-            loadder.text = "Getting pakages...MUI"
+            s.message("Getting pakages...MUI")
             let muiversion = await latestVersion("@mui/material")
             let emotionreactversion = await latestVersion("@emotion/react")
             let emotionstyledversion = await latestVersion("@emotion/styled")
@@ -307,7 +267,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
             break;
 
           case "Bootstrap":
-            loadder.text = "Getting pakages...Bootstrap"
+            s.message("Getting pakages...Bootstrap")
             let boostrapversion = await latestVersion("bootstrap")
             let reactbootstrapversion = await latestVersion("react-bootstrap")
             let postcssloaderversion = await latestVersion("postcss-loader")
@@ -330,7 +290,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
             break;
 
           case "TailwindCSS":
-            loadder.text = "Getting pakages...TailwindCSS"
+            s.message("Getting pakages...TailwindCSS")
             // `${typePackage} -D postcss-preset-env tailwindcss autoprefixer && ${typePackage} postcss-loader`
             let postcssenvversion = await latestVersion("postcss-preset-env")
             let tailwindcssversion = await latestVersion("tailwindcss")
@@ -368,7 +328,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
       packageJson.devDependencies = currDevDependcies
 
       fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8');
-      loadder.stop()
+      s.stop("Files setup completed")
     } catch (err) {
       console.error('Error reading or parsing package.json:', err);
     }
@@ -378,10 +338,10 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
 
 const showMessage = async (folderName: string, packageManger: string) => {
   console.log("")
-  console.log(`${pc.green(pc.bold(folderName) + " successfully created")}`)
+ console.log(`${pc.green(pc.bold(folderName) + " successfully created")}`)
   console.log(`${pc.italic(pc.underline("To run the project"))}`)
   console.log(`           ${pc.blue("cd " + pc.bold(folderName))}`)
-  if(packageManger==="yarn") console.log(`           ${pc.blue(`${packageManger}`)}`)
+  if(packageManger==="redux-saga") console.log(`           ${pc.blue(`${packageManger}`)}`)
   else console.log(`           ${pc.blue(`${packageManger} install`)}`)
   if(packageManger==="yarn") console.log(`           ${pc.blue(`${packageManger} dev`)}`)
   else console.log(`           ${pc.blue(`${packageManger} run dev`)}`)
@@ -392,11 +352,11 @@ const showMessage = async (folderName: string, packageManger: string) => {
 const generateFolder = async () => {
   await init()
   let userresponse = await generateQuestionsForFolder();
+ // console.log(userresponse)
   const projectChoice = userresponse.typeOFScript
   const projectName = userresponse.folderName
   const packageManager = userresponse.packageManger
   const fileType = projectChoice === "sample-react" ? "js" : "ts";
-  //let typePackage = packageManager === "npm" ? "npm install" : "yarn add";
   const templatePath = path.join(__dirname, "protemplates", 'templates', projectChoice);
   const tartgetPath = path.join(CURR_DIR, projectName);
   const options: CliOptions = {
@@ -408,16 +368,16 @@ const generateFolder = async () => {
   if (!createProject(tartgetPath)) {
     return;
   }
-  const userRequestPackage = {
-    addRouter: userresponse.addRouter,
-    addAxios: userresponse.addAxios,
-    addRedux: userresponse.addRedux,
-    reduxMiddlewareType: userresponse.reduxMiddlewareType,
-    CSSFramework: userresponse.cssFramework
-  }
-  createDirectoryContents(templatePath, projectName);
-  await postProcess(options, packageManager, userRequestPackage, fileType);
-  showMessage(projectName, packageManager);
+   const userRequestPackage = {
+     addRouter: userresponse.packages.includes("react-router"),
+     addAxios: userresponse.packages.includes("axios"),
+     addRedux: userresponse.packages.includes("redux"),
+     reduxMiddlewareType: userresponse.reduxMiddlewareType,
+     CSSFramework: userresponse.cssFramework
+   }
+   createDirectoryContents(templatePath, projectName);
+   await postProcess(options, packageManager, userRequestPackage, fileType);
+   showMessage(projectName, packageManager);
 
 }
 
