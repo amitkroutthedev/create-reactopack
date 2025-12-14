@@ -70,6 +70,11 @@ const generateQuestionsForFolder = async (): Promise<QuestionResponse> => {
           label: "yarn",
           value: "yarn",
           hint: 'yarn is an awesome package manager'
+        },
+        {
+          label: "pnpm",
+          value: "pnpm",
+          hint: 'pnpm is fast and disk space efficient'
         }]
     }),
    packages: ({ results }) =>
@@ -193,8 +198,8 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
   s.start("Getting packages.....")
   //spinner.spinner = cliSpinners.clock
   if (isNode) {
-    const packageJsonPath = path.join(options.tartgetPath, 'package.json');
-    shell.cd(options.tartgetPath);
+    const packageJsonPath = path.join(options.targetPath, 'package.json');
+    shell.cd(options.targetPath);
 
     try {
       const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
@@ -203,21 +208,21 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
       let currDependcies = { ...packageJson.dependencies }
       let currDevDependcies = { ...packageJson.devDependencies }
 
-      const targetPath = options.tartgetPath
+      const targetPath = options.targetPath
 
       const extratemplatePath = path.join(__dirname, "protemplates", 'file-template');
       if (userRequestPackage.addRouter) {
-        s.message("Getting pakages...react-router-dom")
+        s.message("Getting packages...react-router-dom")
         let version = await latestVersion("react-router-dom")
         currDependcies["react-router-dom"] = version
       }
       if (userRequestPackage.addAxios) {
-        s.message("Getting pakages...axios")
+        s.message("Getting packages...axios")
         let version = await latestVersion("axios")
         currDependcies['axios'] = version
       }
       if (userRequestPackage.addRedux) {
-        s.message("Getting pakages...readux and react-redux")
+        s.message("Getting packages...redux and react-redux")
         let reduxversion = await latestVersion("redux")
         let reactreduxversion = await latestVersion("react-redux")
         let reacttoolkitversion = await latestVersion("@reduxjs/toolkit")
@@ -230,7 +235,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
         createFileInFolder(path.join(targetPath, 'src/redux/action/config'), `store.${fileType}x`, "")
 
         if (userRequestPackage.reduxMiddlewareType === "redux-thunk") {
-          s.message("Getting pakages...redux-thunk")
+          s.message("Getting packages...redux-thunk")
           let reduxmiddlewareversion = await latestVersion("redux-thunk")
           currDependcies["redux-thunk"] = reduxmiddlewareversion
 
@@ -240,7 +245,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
 
         }
         if (userRequestPackage.reduxMiddlewareType === "redux-saga") {
-          s.message("Getting pakages...redux-saga")
+          s.message("Getting packages...redux-saga")
           let reduxmiddlewareversion = await latestVersion("redux-saga")
           currDependcies["redux-saga"] = reduxmiddlewareversion
 
@@ -253,7 +258,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
       if (userRequestPackage.CSSFramework !== "None") {
         switch (userRequestPackage.CSSFramework) {
           case "MUI":
-            s.message("Getting pakages...MUI")
+            s.message("Getting packages...MUI")
             let muiversion = await latestVersion("@mui/material")
             let emotionreactversion = await latestVersion("@emotion/react")
             let emotionstyledversion = await latestVersion("@emotion/styled")
@@ -267,7 +272,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
             break;
 
           case "Bootstrap":
-            s.message("Getting pakages...Bootstrap")
+            s.message("Getting packages...Bootstrap")
             let boostrapversion = await latestVersion("bootstrap")
             let reactbootstrapversion = await latestVersion("react-bootstrap")
             let postcssloaderversion = await latestVersion("postcss-loader")
@@ -290,7 +295,7 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
             break;
 
           case "TailwindCSS":
-            s.message("Getting pakages...TailwindCSS")
+            s.message("Getting packages...TailwindCSS")
             // `${typePackage} -D postcss-preset-env tailwindcss autoprefixer && ${typePackage} postcss-loader`
             let postcssenvversion = await latestVersion("postcss-preset-env")
             let tailwindcssversion = await latestVersion("tailwindcss")
@@ -341,9 +346,8 @@ const showMessage = async (folderName: string, packageManger: string) => {
  console.log(`${pc.green(pc.bold(folderName) + " successfully created")}`)
   console.log(`${pc.italic(pc.underline("To run the project"))}`)
   console.log(`           ${pc.blue("cd " + pc.bold(folderName))}`)
-  if(packageManger==="redux-saga") console.log(`           ${pc.blue(`${packageManger}`)}`)
-  else console.log(`           ${pc.blue(`${packageManger} install`)}`)
-  if(packageManger==="yarn") console.log(`           ${pc.blue(`${packageManger} dev`)}`)
+  console.log(`           ${pc.blue(`${packageManger} install`)}`)
+  if(packageManger==="yarn" || packageManger==="pnpm") console.log(`           ${pc.blue(`${packageManger} dev`)}`)
   else console.log(`           ${pc.blue(`${packageManger} run dev`)}`)
   console.log(`${pc.red(pc.bold("Happy Coding!!!"))}`)
   console.log(`${pc.bold("Give a star⭐ to repo")} - https://github.com/amitkroutthedev/create-reactopack`)
@@ -358,14 +362,14 @@ const generateFolder = async () => {
   const packageManager = userresponse.packageManger
   const fileType = projectChoice === "sample-react" ? "js" : "ts";
   const templatePath = path.join(__dirname, "protemplates", 'templates', projectChoice);
-  const tartgetPath = path.join(CURR_DIR, projectName);
+  const targetPath = path.join(CURR_DIR, projectName);
   const options: CliOptions = {
     projectName,
     templateName: projectChoice,
     templatePath,
-    tartgetPath
+    targetPath
   }
-  if (!createProject(tartgetPath)) {
+  if (!createProject(targetPath)) {
     return;
   }
    const userRequestPackage = {

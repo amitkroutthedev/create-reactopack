@@ -1,64 +1,158 @@
-<!-- <p align="center"><img src="https://socialify.git.ci/amitkroutthedev/create-reactopack/image?description=1&descriptionEditable=An%20interactive%20npx%20CLI%20that%20handles%20scaffolding%20and%20setup%20of%20a%20React%20project%20using%20Webpack%20and%20other%20popular%20packages.%20%0A&font=Jost&logo=https%3A%2F%2Fraw.githubusercontent.com%2Famitkroutthedev%2Fsuper-react-app%2Fmain%2Fassets%2Flogoonbg.png&name=1&owner=1&pattern=Formal%20Invitation&theme=Dark" alt="project-image"></p> -->
-<h1>Create-Reactopack</h1>
+# Create-Reactopack
+
+> **The fastest way to scaffold a React project with Webpack and your favorite tools**
+
 <p align="center">
-<img src="https://img.shields.io/badge/License-MIT-green.svg" alt="shields">
-<img src="https://img.shields.io/npm/v/create-rp-app.svg?logo=npm" alt="shields">
-<img src="https://img.shields.io/npm/dt/create-rp-app?logo=npm" alt="shields">
+  <img src="https://img.shields.io/npm/v/create-rp-app.svg?logo=npm&color=blue" alt="npm version">
+  <img src="https://img.shields.io/npm/dt/create-rp-app?logo=npm" alt="downloads">
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="license">
 </p>
 
-<p><b>Create-Reactopack</b> is a custom made package that helps the developer setup a clean and minimal React project with the help of <b>Webpack</b>, which gives the developer the make custom changes according to the need. This package also gives flexibility to choose popular packages like <b>axios</b>,<b>react-router</b>,<b>redux</b> as well as various CSS packages like (<b>TailwindCSS,MUI,Bootstrap</b>) which wil be included in the project at the time of setup. </p>
-
-<h2>
-Install
-</h2>
-<code>
-$npx create-rp-app
-</code>
-
-
-
-<h2>🚀 Demo</h2>
-
-![demolink](https://raw.githubusercontent.com/amitkroutthedev/create-reactopack/main/assets/rp-code.gif)
-
-<h2>🧐 Features</h2>
-
-Here're some of the project's best features:
-
-- Clean react project
-- No vulnerability
-- Superfast
-- Integrated with webpack and latest packages
-- Flexibility to choose from important packages (package manager,axios,react-router,redux,css frameworks,js/ts) to download
-
-<h2>Why Reactopack?</h2>
-
-<p>
-  <b>Reactopack</b> is not just like other NPX react commands; it's a game-changer for frontend development. Here's why:
+<p align="center">
+  <img src="https://raw.githubusercontent.com/amitkroutthedev/create-reactopack/main/assets/rp-code.gif" alt="Demo" width="600">
 </p>
-<ul> 
-  <li><b>Feature-Proof Apps:</b> Reactopack helps you build frontend applications that are robust, scalable, and ready to handle any future features or requirements.</li>
-   <li><b>Seamless Integration:</b> Reactopack seamlessly integrates with your existing development workflow, enhancing your productivity without disrupting your current setup.</li>
-  <li><b>Cutting-Edge Technologies:</b> Reactopack keeps you up-to-date with the latest frontend technologies and best practices, ensuring that your applications are built on a solid foundation.</li>
-</ul>
-With Reactopack, you can focus on building amazing frontend applications without worrying about the underlying complexities. It's the ultimate NPX command for frontend developers who want to create feature-proof, high-quality applications with ease.
-  
-  
-<h2>💻 Built with</h2>
 
-Technologies used in the project:
+---
 
-- @inquirer/prompts
-- chalk
-- figlet
-- ora
-- shelljs
+## Quick Start
 
+```bash
+npx create-rp-app
+```
 
-<h2>🛡️ License:</h2>
+That's it! Follow the interactive prompts to customize your React project.
 
-This project is licensed under the MIT
+---
 
-## Issues
+## What You Get
 
-If you find any issues or bugs, please create a new issue in the repository
+Create-Reactopack generates a **clean, production-ready React project** with:
+
+- **Webpack** configured and ready
+- **Package Manager** choice (npm, yarn, or pnpm)
+- **TypeScript** or **JavaScript** support
+- **CSS Frameworks**: TailwindCSS, MUI, or Bootstrap
+- **React Router** for routing
+- **Redux** with Thunk or Saga middleware
+- **Axios** for API calls
+- **Zero configuration** - everything works out of the box
+
+---
+
+## Why Choose Reactopack?
+
+| Feature | Reactopack | Others |
+|---------|-----------|--------|
+| **Webpack Control** | Full control | Hidden config |
+| **Package Selection** | Interactive | Fixed setup |
+| **CSS Framework** | Choose on setup | Manual install |
+| **State Management** | Pre-configured | DIY setup |
+| **Speed** | Fast setup | Varies |
+
+---
+
+## Features
+
+- **Interactive CLI** - Choose what you need, skip what you don't
+- **Fully Customizable** - Webpack config is yours to modify
+- **Fast Setup** - Get started in seconds, not minutes
+- **Secure** - Latest packages with no known vulnerabilities
+- **Modern Stack** - React 19, latest Webpack, and best practices
+- **Zero Bloat** - Only install what you select
+
+---
+
+## What's Included
+
+### Core Setup
+- React 19 with Webpack 5
+- Hot Module Replacement (HMR)
+- Production-ready build configuration
+- Development server with auto-reload
+
+### Optional Packages
+- **React Router** - Client-side routing
+- **Redux** - State management (with Thunk or Saga)
+- **Axios** - HTTP client
+- **TailwindCSS** - Utility-first CSS
+- **Material-UI** - React component library
+- **Bootstrap** - Popular CSS framework
+
+---
+
+## Usage
+
+1. **Run the command:**
+   ```bash
+   npx create-rp-app
+   ```
+
+2. **Answer the prompts:**
+   - Project name
+   - TypeScript or JavaScript
+   - Package manager (npm/yarn/pnpm)
+   - Additional packages
+   - CSS framework
+
+3. **Start coding:**
+   ```bash
+   cd your-project-name
+   npm install  # or yarn/pnpm
+   npm run dev   # or yarn dev / pnpm dev
+   ```
+
+---
+
+## Example Output
+
+```
+>>>>>>  Welcome to REACTOPACK
+
+? Enter your folder name: my-awesome-app
+? Will you be using TypeScript or JavaScript? TypeScript
+? Select a package manager: pnpm
+? What packages to include? React Router, Axios, Redux
+? Choose Redux middleware: redux-thunk
+? Choose CSS framework: TailwindCSS
+
+my-awesome-app successfully created!
+
+To run the project:
+   cd my-awesome-app
+   pnpm install
+   pnpm dev
+```
+
+---
+
+## Contributing
+
+Found a bug or have a feature request? We'd love your help!
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Support
+
+Star this repo if you find it helpful!
+
+[Report a bug](https://github.com/amitkroutthedev/create-reactopack/issues)
+
+[Request a feature](https://github.com/amitkroutthedev/create-reactopack/issues)
+
+---
+
+<p align="center">
+  Made with ❤️ by <a href="https://github.com/amitkroutthedev">amitkrout</a>
+</p>
