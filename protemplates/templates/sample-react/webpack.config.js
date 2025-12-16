@@ -15,7 +15,7 @@ module.exports = async (env, argv) => {
   }
   return {
     mode: "development",
-    entry: "/src/index.jsx", // main js
+    entry: "./src/index.jsx", // main js
     output: {
       path: path.resolve(__dirname, "dist"), // output folder
       publicPath: "/",

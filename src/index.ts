@@ -299,24 +299,24 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
             // `${typePackage} -D postcss-preset-env tailwindcss autoprefixer && ${typePackage} postcss-loader`
             let postcssenvversion = await latestVersion("postcss-preset-env")
             let tailwindcssversion = await latestVersion("tailwindcss")
-            let autoprefixerversio = await latestVersion("autoprefixer")
-            let postcssloader = await latestVersion("postcss-loader")
+            const tailwindcsspostcssversion = await latestVersion("@tailwindcss/postcss")
+            
 
             currDevDependcies["postcss-preset-env"] = postcssenvversion
             currDevDependcies["tailwindcss"] = tailwindcssversion
-            currDevDependcies["autoprefixer"] = autoprefixerversio
-            currDevDependcies["postcss-loader"] = postcssloader
+            currDevDependcies["@tailwindcss/postcss"] = tailwindcsspostcssversion
 
-            createFileInFolder(targetPath, `postcss.config.cjs`, "")
-            createFileInFolder(targetPath, `tailwind.config.cjs`, "")
 
-            let postcssRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `postcss.config.cjs`);
+          //  createFileInFolder(targetPath, `postcss.config.cjs`, "")
+          //  createFileInFolder(targetPath, `tailwind.config.cjs`, "")
+
+            let postcssRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `postcss.config.js`);
             let postcssContent = fs.readFileSync(postcssRoute, "utf-8");
-            fs.writeFileSync(`postcss.config.cjs`, postcssContent);
+            fs.writeFileSync(`postcss.config.js`, postcssContent);
 
-            let tailwindRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `tailwind.config.cjs`);
-            let tailwindContent = fs.readFileSync(tailwindRoute, "utf-8");
-            fs.writeFileSync(`tailwind.config.cjs`, tailwindContent);
+           // let tailwindRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `tailwind.config.cjs`);
+           /// let tailwindContent = fs.readFileSync(tailwindRoute, "utf-8");
+          //  fs.writeFileSync(`tailwind.config.cjs`, tailwindContent);
 
             let indexcssRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `index.css`);
             let indexcssContent = fs.readFileSync(indexcssRoute, "utf-8");
