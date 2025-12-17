@@ -1,6 +1,8 @@
-# Create-Reactopack
+## Create-Reactopack
 
-> **The fastest way to scaffold a React project with Webpack and your favorite tools**
+> **Interactive CLI to generate React 19 + Webpack 5 apps with optional Router, Redux, Axios, and CSS frameworks – full control, no hidden config.**
+
+Perfect if you like React + Webpack but want a faster setup than wiring everything from scratch or fighting CRA/Vite’s hidden config.
 
 <p align="center">
   <img src="https://img.shields.io/npm/v/create-rp-app.svg?logo=npm&color=blue" alt="npm version">
@@ -9,12 +11,10 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/amitkroutthedev/create-reactopack/main/assets/rp-code.gif" alt="Demo" width="600">
+  <img src="./assets/demo.gif" alt="create-rp-app CLI demo" width="700">
 </p>
 
----
-
-## Quick Start
+### Quick Start
 
 ```bash
 npx create-rp-app
@@ -22,9 +22,23 @@ npx create-rp-app
 
 That's it! Follow the interactive prompts to customize your React project.
 
+### Common Setups
+
+- **React + TypeScript + Router + Redux + TailwindCSS**
+
+```bash
+npx create-rp-app
+# Prompts:
+# - Folder name: my-awesome-app
+# - Will you be using TypeScript or JavaScript? TypeScript
+# - Select a package manager: pnpm (or npm / yarn)
+# - What packages to include? React Router, Redux, Axios
+# - Please choose the css framework: TailwindCSS
+```
+
 ---
 
-## What You Get
+### What You Get
 
 Create-Reactopack generates a **clean, production-ready React project** with:
 
@@ -39,19 +53,19 @@ Create-Reactopack generates a **clean, production-ready React project** with:
 
 ---
 
-## Why Choose Reactopack?
+### Why Choose Reactopack?
 
-| Feature | Reactopack | Others |
-|---------|-----------|--------|
-| **Webpack Control** | Full control | Hidden config |
-| **Package Selection** | Interactive | Fixed setup |
-| **CSS Framework** | Choose on setup | Manual install |
-| **State Management** | Pre-configured | DIY setup |
+| Feature | Reactopack | CRA / Vite / Others |
+|---------|-----------|----------------------|
+| **Webpack Control** | Full control | Hidden or abstracted config |
+| **Package Selection** | Interactive | Fixed setup / extra installs |
+| **CSS Framework** | Choose on setup | Manual install & wiring |
+| **State Management** | Pre-configured Redux + middleware | DIY setup |
 | **Speed** | Fast setup | Varies |
 
 ---
 
-## Features
+### Features
 
 - **Interactive CLI** - Choose what you need, skip what you don't
 - **Fully Customizable** - Webpack config is yours to modify
@@ -62,7 +76,7 @@ Create-Reactopack generates a **clean, production-ready React project** with:
 
 ---
 
-## What's Included
+### What's Included
 
 ### Core Setup
 - React 19 with Webpack 5
@@ -80,7 +94,7 @@ Create-Reactopack generates a **clean, production-ready React project** with:
 
 ---
 
-## Usage
+### Usage
 
 1. **Run the command:**
    ```bash
@@ -91,7 +105,7 @@ Create-Reactopack generates a **clean, production-ready React project** with:
    - Project name
    - TypeScript or JavaScript
    - Package manager (npm/yarn/pnpm)
-   - Additional packages
+   - Optional additional packages (you can press Enter to skip)
    - CSS framework
 
 3. **Start coding:**
@@ -103,7 +117,7 @@ Create-Reactopack generates a **clean, production-ready React project** with:
 
 ---
 
-## Example Output
+### Example Output
 
 ```
 >>>>>>  Welcome to REACTOPACK
@@ -111,9 +125,9 @@ Create-Reactopack generates a **clean, production-ready React project** with:
 ? Enter your folder name: my-awesome-app
 ? Will you be using TypeScript or JavaScript? TypeScript
 ? Select a package manager: pnpm
-? What packages to include? React Router, Axios, Redux
+? What packages to include? (optional) React Router, Axios, Redux
 ? Choose Redux middleware: redux-thunk
-? Choose CSS framework: TailwindCSS
+? Please choose the css framework: TailwindCSS
 
 my-awesome-app successfully created!
 

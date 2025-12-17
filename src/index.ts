@@ -34,9 +34,53 @@ const forceClosed = () => {
   shell.echo(pc.bold(pc.red("Forced Closed")));
 };
 
+const getAvailablePackageManagers = () => {
+  const options: { label: string; value: string; hint: string }[] = [];
+
+  if (shell.which("npm")) {
+    options.push({
+      label: "npm",
+      value: "npm",
+      hint: "npm is the most popular package manager",
+    });
+  }
+
+  if (shell.which("yarn")) {
+    options.push({
+      label: "yarn",
+      value: "yarn",
+      hint: "yarn is an awesome package manager",
+    });
+  }
+
+  if (shell.which("pnpm")) {
+    options.push({
+      label: "pnpm",
+      value: "pnpm",
+      hint: "pnpm is fast and disk space efficient",
+    });
+  }
+
+  return options;
+};
+
 
 
 const generateQuestionsForFolder = async (): Promise<QuestionResponse> => {
+  const packageManagerOptions = getAvailablePackageManagers();
+
+  if (packageManagerOptions.length === 0) {
+    console.log(
+      pc.red(
+        "No supported package manager (npm, yarn, pnpm) was found in your PATH."
+      )
+    );
+    console.log(
+      pc.yellow("Please install one of them and re-run create-reactopack.")
+    );
+    process.exit(1);
+  }
+
   const group = await p.group({
     folderName:()=>p.text({
       message: "Enter your folder name: ", 
@@ -60,26 +104,12 @@ const generateQuestionsForFolder = async (): Promise<QuestionResponse> => {
     }),
     packageManger:()=>p.select({
       message: "Select a package manager:",
-      options: [
-        {
-          label: "npm",
-          value:"npm",
-          hint: 'npm is the most popular package manager'
-        },
-        {
-          label: "yarn",
-          value: "yarn",
-          hint: 'yarn is an awesome package manager'
-        },
-        {
-          label: "pnpm",
-          value: "pnpm",
-          hint: 'pnpm is fast and disk space efficient'
-        }]
+      options: packageManagerOptions
     }),
    packages: ({ results }) =>
       p.multiselect({
         message: `What are packages to be there?`,
+        required: false,
         options: [
           { value: 'react-router', label: 'React Router' },
           { value: 'axios', label: 'Axios' },
@@ -307,16 +337,10 @@ async function postProcess(options: CliOptions, packageManager: string, userRequ
             currDevDependcies["@tailwindcss/postcss"] = tailwindcsspostcssversion
 
 
-          //  createFileInFolder(targetPath, `postcss.config.cjs`, "")
-          //  createFileInFolder(targetPath, `tailwind.config.cjs`, "")
-
             let postcssRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `postcss.config.js`);
             let postcssContent = fs.readFileSync(postcssRoute, "utf-8");
             fs.writeFileSync(`postcss.config.js`, postcssContent);
 
-           // let tailwindRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `tailwind.config.cjs`);
-           /// let tailwindContent = fs.readFileSync(tailwindRoute, "utf-8");
-          //  fs.writeFileSync(`tailwind.config.cjs`, tailwindContent);
 
             let indexcssRoute = path.join(extratemplatePath, userRequestPackage.CSSFramework, `index.css`);
             let indexcssContent = fs.readFileSync(indexcssRoute, "utf-8");

@@ -1,7 +1,7 @@
 {
   "name": "create-rp-app",
   "version": "1.3.0",
-  "description": "It's a npx command tool to create a react project with the help of webpack and give choices to user to add important packages and popular css frameworks.",
+  "description": "Interactive CLI to scaffold React 19 + Webpack 5 with optional Router, Redux (Thunk/Saga), Axios, and CSS frameworks – no hidden config",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsup && shx rm -rf dist/protemplates && shx cp -r protemplates dist",
@@ -11,17 +11,23 @@
     "create-rp-app": "./dist/index.js"
   },
   "keywords": [
+    "react",
+    "react-cli",
+    "react-starter",
+    "react-boilerplate",
+    "webpack",
+    "webpack-5",
+    "scaffolding",
+    "starter-kit",
     "axios",
     "redux",
     "react-router",
-    "redux",
-    "react",
-    "npx",
     "mui",
     "redux-thunk",
     "redux-saga",
     "tailwindcss",
-    "bootstrap"
+    "bootstrap",
+    "npx"
   ],
   "files": [
     ".gitignore",
